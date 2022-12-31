@@ -160,13 +160,25 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
         random.randint(0,360),
         random.randint(0,360)]
         rotgroup.append(r4)
-    
+
     if chartPath[-1]=="c":
         chart=pec2json(chartPath)
         BarPerMinute=chart["judgeLineList"][0]["bpm"]
     else:
         with open(chartPath,"r",encoding="utf_8") as t:
             chart=json.load(t)
+
+            if(chart["formatVersion"] == 1): #解决formatver1的问题
+                for i in range(len(chart["judgeLineList"])):
+                    line = chart["judgeLineList"][i]
+                    for j in range(len(line["judgeLineMoveEvents"])):
+                        chart["judgeLineList"][i]["judgeLineMoveEvents"][j]["start2"] = (chart["judgeLineList"][i]["judgeLineMoveEvents"][j]["start"] % 1e3) / 520
+                        chart["judgeLineList"][i]["judgeLineMoveEvents"][j]["end2"] = (chart["judgeLineList"][i]["judgeLineMoveEvents"][j]["end"] % 1e3) / 520
+                        chart["judgeLineList"][i]["judgeLineMoveEvents"][j]["start"] = int(chart["judgeLineList"][i]["judgeLineMoveEvents"][j]["start"] / 1000) /880
+                        chart["judgeLineList"][i]["judgeLineMoveEvents"][j]["end"] = int(chart["judgeLineList"][i]["judgeLineMoveEvents"][j]["end"] / 1000) /880
+                    for j in range(len(line["speedEvents"])):
+                        chart["judgeLineList"][i]["speedEvents"][j]["floorPosition"] = 0
+
             BarPerMinute=chart["judgeLineList"][0]["bpm"]
             for i in range(0,len(chart["judgeLineList"])):
                 mult=BarPerMinute/chart["judgeLineList"][i]["bpm"]
