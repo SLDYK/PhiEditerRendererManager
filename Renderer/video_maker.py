@@ -47,10 +47,12 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     
     size = (width, height)
     
-    text_font = ImageFont.truetype("Source/Source Han Sans & Saira Hybrid-Regular.ttf",int(39 * height / 1080))
-    combo_font1 = ImageFont.truetype("Source/Source Han Sans & Saira Hybrid-Regular.ttf",int(72 * height / 1080))
-    combo_font2 = ImageFont.truetype("Source/Source Han Sans & Saira Hybrid-Regular.ttf",int(26 * height / 1080))
-    score_font = ImageFont.truetype("Source/Source Han Sans & Saira Hybrid-Regular.ttf",int(55 * height / 1080))
+    fontpath = os.path.join(cur_path, "Source/Source Han Sans & Saira Hybrid-Regular.ttf")
+    text_font = ImageFont.truetype(fontpath, int(39 * height / 1080))
+    combo_font1 = ImageFont.truetype(fontpath, int(72 * height / 1080))
+    combo_font2 = ImageFont.truetype(fontpath, int(26 * height / 1080))
+    score_font = ImageFont.truetype(fontpath, int(55 * height / 1080))
+    
     draw = ImageDraw.Draw(background)
     title = text_font.getsize(songName)
     draw.text((int(41 * height / 1080), int(background.height - 39 * height / 1080 - title[1])), songName, font=text_font, fill=(255,255,255))
