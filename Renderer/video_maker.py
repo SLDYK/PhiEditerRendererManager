@@ -52,7 +52,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     combo_font1 = ImageFont.truetype(fontpath, int(72 * height / 1080))
     combo_font2 = ImageFont.truetype(fontpath, int(26 * height / 1080))
     score_font = ImageFont.truetype(fontpath, int(55 * height / 1080))
-    
+
     draw = ImageDraw.Draw(background)
     title = text_font.getsize(songName)
     draw.text((int(41 * height / 1080), int(background.height - 39 * height / 1080 - title[1])), songName, font=text_font, fill=(255,255,255))
@@ -283,8 +283,9 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     score_this_frame = 0
     totalcombo = chart['numOfNotes']
 
+    vidpath = os.path.join(cur_path, "tmp/export.avi")
     fourcc=cv2.VideoWriter_fourcc(*'XVID')
-    videowrite=cv2.VideoWriter("tmp/export.avi", fourcc, fps, size)
+    videowrite=cv2.VideoWriter(vidpath, fourcc, fps, size)
     
     photo=ImageTk.PhotoImage(background.resize((int(200*background.width/background.height),200)))
     view=tkinter.Label(showframe,image=photo)
@@ -307,19 +308,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
         score_this_frame = score(combo_this_frame, totalcombo)
         beat = f2b(i, fps, BarPerMinute)
         frame = background.copy()
-        draw = ImageDraw.Draw(frame)
-        combo_size = combo_font1.getsize(str(combo_this_frame))
-        if combo_this_frame >= 3:
-            draw.text((int(0.5*background.width-0.5*title[0]),int(100*height/1080) - 8),
-                    "COMBO",font=combo_font2,fill=(250,250,250))
-            draw.text((int(0.5 * background.width - 0.5 * combo_size[0]),int(20 * height / 1080) - 3),
-                    str(combo_this_frame) ,font=combo_font1, fill=(250,250,250))
-        score_size=score_font.getsize(score_this_frame)
-        draw.text((int(background.width-score_size[0]-30*height/1080) + 7,int(30*height/1080) + 2),
-                score_this_frame,font=score_font,fill=(250,250,250))
-        del draw
-        #进度条
-        frame.paste(ProgressBar, (int(i / totalpaint * background.width) - ProgressBar.width, 0), ProgressBar)
+        #把分数渲染移到了最后 防止判定线遮挡UI
 
         note_this_frame=[]
         hold_this_frame=[]
@@ -498,6 +487,21 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                 frame.paste(particle[int((i-effect_this_frame[k]['hitFrame'])*60/fps)],particle_pos[1],particle[int((i-effect_this_frame[k]['hitFrame'])*60/fps)])
                 frame.paste(particle[int((i-effect_this_frame[k]['hitFrame'])*60/fps)],particle_pos[2],particle[int((i-effect_this_frame[k]['hitFrame'])*60/fps)])
                 frame.paste(particle[int((i-effect_this_frame[k]['hitFrame'])*60/fps)],particle_pos[3],particle[int((i-effect_this_frame[k]['hitFrame'])*60/fps)])
+
+        draw = ImageDraw.Draw(frame)
+        combo_size = combo_font1.getsize(str(combo_this_frame))
+        if combo_this_frame >= 3:
+            draw.text((int(0.5*background.width-0.5*title[0]),int(100*height/1080) - 8),
+                    "COMBO",font=combo_font2,fill=(250,250,250))
+            draw.text((int(0.5 * background.width - 0.5 * combo_size[0]),int(20 * height / 1080) - 3),
+                    str(combo_this_frame) ,font=combo_font1, fill=(250,250,250))
+        score_size=score_font.getsize(score_this_frame)
+        draw.text((int(background.width-score_size[0]-30*height/1080) + 7,int(30*height/1080) + 2),
+                score_this_frame,font=score_font,fill=(250,250,250))
+        del draw
+        #进度条
+        frame.paste(ProgressBar, (int(i / totalpaint * background.width) - ProgressBar.width, 0), ProgressBar)
+
         videowrite.write(cv2.cvtColor(numpy.asarray(frame),cv2.COLOR_RGB2BGR))
         photo=ImageTk.PhotoImage(frame.resize((int(200*frame.width/frame.height),200)))
 
