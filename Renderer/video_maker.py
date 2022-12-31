@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import os
 import contextlib
 import wave
 import cv2
@@ -15,6 +16,8 @@ from lib_for_video import mkdir, linepos
 from lib_for_audio import audio2wav, PhiAudio, video_add_audio
 from pec2json import pec2json
 
+cur_path = os.path.dirname(__file__)
+
 def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,HighLight,Blur,noteSize):#主程序
     
     showframe=tkinter.Toplevel()
@@ -27,13 +30,13 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     score_this_frame = 0
     chart = {}
     
-    mkdir("tmp")
+
+    mkdir(os.path.join(cur_path, "tmp"))
     audio2wav(audioPath)
     
 
-    
-    audioPath="tmp/music.wav"
-    
+    audioPath = os.path.join(cur_path, "tmp/music.wav")
+
     with contextlib.closing(wave.open(audioPath, 'r')) as f:
         frames = f.getnframes()
         rate = f.getframerate()
@@ -503,9 +506,11 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     videowrite.release()
     var.set("正在合成音视频")
     showframe.update()
-    mkdir("export")
+    mkdir(os.path.join(cur_path, "export"))
     
-    
-    video_add_audio("tmp/export.avi","tmp/hitsound.wav", "export", f"{songName}.mp4")
+    vidpath = os.path.join(cur_path, "tmp/export.avi")
+    audpath = os.path.join(cur_path, "tmp/hitsound.wav")
+    export_p = os.path.join(cur_path, "export")
+    video_add_audio(vidpath, audpath, export_p, f"{songName}.mp4")
 
-    messagebox.showinfo("完成","视频已保存至export文件夹")
+    messagebox.showinfo("完成",f"视频已保存至{export_p}文件夹")
