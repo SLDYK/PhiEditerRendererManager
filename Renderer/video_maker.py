@@ -36,7 +36,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     
 
     audioPath = os.path.join(cur_path, "tmp/music.wav")
-
+    
     with contextlib.closing(wave.open(audioPath, 'r')) as f:
         frames = f.getnframes()
         rate = f.getframerate()
@@ -58,68 +58,68 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     draw.text((int(background.width - 41 * height / 1080 - title[0]), int(background.height - 39 * height / 1080 - title[1])), level, font=text_font, fill=(255,255,255))
     title = combo_font2.getsize("COMBO")
 
-    pause = Image.open("Source/Pause.png").convert("RGBA")
+    pause = Image.open(os.path.join(cur_path ,"Source/Pause.png")).convert("RGBA")
     pause = pause.resize((int(pause.width * height / 1080), int(pause.height * height / 1080)))
     background.paste(pause, (int(60 * height / 1920), int(40 * height / 1080)), mask = pause)
     del draw
     
-    ProgressBar=Image.open("Source/ProgressBar.png").convert("RGBA")
+    ProgressBar=Image.open(os.path.join(cur_path ,"Source/ProgressBar.png")).convert("RGBA")
     ProgressBar=ProgressBar.resize((int(ProgressBar.width * width/1920), int(ProgressBar.height * width/1920)))
-    tap=Image.open("Source/Tap.png").convert("RGBA")
+    tap=Image.open(os.path.join(cur_path ,"Source/Tap.png")).convert("RGBA")
     tap=tap.resize((int(0.2*tap.width*width/1920*noteSize),int(0.2*tap.height*width/1920*noteSize)))
-    tapHL=Image.open("Source/TapHL.png").convert("RGBA")
+    tapHL=Image.open(os.path.join(cur_path ,"Source/TapHL.png")).convert("RGBA")
     tapHL=tapHL.resize((int(0.2*tapHL.width*width/1920*noteSize),int(0.2*tapHL.height*width/1920*noteSize)))
-    flick=Image.open("Source/Flick.png").convert("RGBA")
+    flick=Image.open(os.path.join(cur_path ,"Source/Flick.png")).convert("RGBA")
     flick=flick.resize((int(0.2*flick.width*width/1920*noteSize),int(0.2*flick.height*width/1920*noteSize)))
-    flickHL=Image.open("Source/FlickHL.png").convert("RGBA")
+    flickHL=Image.open(os.path.join(cur_path ,"Source/FlickHL.png")).convert("RGBA")
     flickHL=flickHL.resize((int(0.2*flickHL.width*width/1920*noteSize),int(0.2*flickHL.height*width/1920*noteSize)))
-    drag=Image.open("Source/Drag.png").convert("RGBA")
+    drag=Image.open(os.path.join(cur_path ,"Source/Drag.png")).convert("RGBA")
     drag=drag.resize((int(0.2*drag.width*width/1920*noteSize),int(0.2*drag.height*width/1920*noteSize)))
-    dragHL=Image.open("Source/DragHL.png").convert("RGBA")
+    dragHL=Image.open(os.path.join(cur_path ,"Source/DragHL.png")).convert("RGBA")
     dragHL=dragHL.resize((int(0.2*dragHL.width*width/1920*noteSize),int(0.2*dragHL.height*width/1920*noteSize)))
-    hold1=Image.open("Source/HoldHead.png").convert("RGBA")
+    hold1=Image.open(os.path.join(cur_path ,"Source/HoldHead.png")).convert("RGBA")
     hold1=hold1.resize((int(0.2*hold1.width*width/1920*noteSize),int(0.2*hold1.height*width/1920*noteSize)))
     hold1=holdhead_fix(hold1)
-    hold1HL=Image.open("Source/HoldHeadHL.png").convert("RGBA")
+    hold1HL=Image.open(os.path.join(cur_path ,"Source/HoldHeadHL.png")).convert("RGBA")
     hold1HL=hold1HL.resize((int(0.2*hold1HL.width*width/1920*noteSize*1.02),int(0.2*hold1HL.height*width/1920*noteSize)))
     hold1HL=holdhead_fix(hold1HL)
-    hold2=Image.open("Source/Hold.png").convert("RGBA")
+    hold2=Image.open(os.path.join(cur_path ,"Source/Hold.png")).convert("RGBA")
     hold2=hold2.resize((int(0.2*hold2.width*width/1920*noteSize),int(0.2*hold2.height*width/1920*noteSize)))
-    hold2HL=Image.open("Source/HoldHL.png").convert("RGBA")
+    hold2HL=Image.open(os.path.join(cur_path ,"Source/HoldHL.png")).convert("RGBA")
     hold2HL=hold2HL.resize((int(0.2*hold2HL.width*width/1920*noteSize*1.02),int(0.2*hold2HL.height*width/1920*noteSize)))
-    hold3=Image.open("Source/HoldEnd.png").convert("RGBA")
+    hold3=Image.open(os.path.join(cur_path ,"Source/HoldEnd.png")).convert("RGBA")
     hold3=hold3.resize((int(0.2*hold3.width*width/1920*noteSize),int(0.2*hold3.height*width/1920*noteSize)))
     hold3=holdend_fix(hold3)
-    hit=[Image.open("Source/img-1.png").convert("RGBA"),
-        Image.open("Source/img-2.png").convert("RGBA"),
-        Image.open("Source/img-3.png").convert("RGBA"),
-        Image.open("Source/img-4.png").convert("RGBA"),
-        Image.open("Source/img-5.png").convert("RGBA"),
-        Image.open("Source/img-6.png").convert("RGBA"),
-        Image.open("Source/img-7.png").convert("RGBA"),
-        Image.open("Source/img-8.png").convert("RGBA"),
-        Image.open("Source/img-9.png").convert("RGBA"),
-        Image.open("Source/img-10.png").convert("RGBA"),
-        Image.open("Source/img-11.png").convert("RGBA"),
-        Image.open("Source/img-12.png").convert("RGBA"),
-        Image.open("Source/img-13.png").convert("RGBA"),
-        Image.open("Source/img-14.png").convert("RGBA"),
-        Image.open("Source/img-15.png").convert("RGBA"),
-        Image.open("Source/img-16.png").convert("RGBA"),
-        Image.open("Source/img-17.png").convert("RGBA"),
-        Image.open("Source/img-18.png").convert("RGBA"),
-        Image.open("Source/img-19.png").convert("RGBA"),
-        Image.open("Source/img-20.png").convert("RGBA"),
-        Image.open("Source/img-21.png").convert("RGBA"),
-        Image.open("Source/img-22.png").convert("RGBA"),
-        Image.open("Source/img-23.png").convert("RGBA"),
-        Image.open("Source/img-24.png").convert("RGBA"),
-        Image.open("Source/img-25.png").convert("RGBA"),
-        Image.open("Source/img-26.png").convert("RGBA"),
-        Image.open("Source/img-27.png").convert("RGBA"),
-        Image.open("Source/img-28.png").convert("RGBA"),
-        Image.open("Source/img-29.png").convert("RGBA"),
-        Image.open("Source/img-30.png").convert("RGBA")]
+    hit=[Image.open(os.path.join(cur_path ,"Source/img-1.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-2.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-3.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-4.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-5.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-6.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-7.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-8.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-9.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-10.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-11.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-12.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-13.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-14.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-15.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-16.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-17.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-18.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-19.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-20.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-21.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-22.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-23.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-24.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-25.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-26.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-27.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-28.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-29.png")).convert("RGBA"),
+        Image.open(os.path.join(cur_path ,"Source/img-30.png")).convert("RGBA")]
     color=Image.new("RGBA",(500,500),(223,210,140,255))
     
     if HighLight == False:
