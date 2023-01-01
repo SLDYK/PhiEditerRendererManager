@@ -18,7 +18,7 @@ from pec2json import pec2json
 
 cur_path = os.path.dirname(__file__)
 
-def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,HighLight,Blur,noteSize):#主程序
+def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,HighLight,Blur,noteSize,LineColor):#主程序
     
     showframe=tkinter.Toplevel()
     showframe.title("Preview(240p)")
@@ -363,8 +363,10 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                 else:
                     chart["judgeLineList"][k]["judgeLineDisappearEvents"].pop(0)
             if alpha!=0:
-                
-                aline=Image.new("RGBA",(linelength,linehight),(237,236,167,int(alpha*255)))
+                if LineColor:
+                    aline=Image.new("RGBA",(linelength,linehight),(237,236,167,int(alpha*255)))
+                else:
+                    aline=Image.new("RGBA",(linelength,linehight),(255,255,255,int(alpha*255)))
                 aline=aline.rotate(rotate, expand=True)
                 xp=int(linex*background.width)
                 yp=int((1-liney)*background.height)
