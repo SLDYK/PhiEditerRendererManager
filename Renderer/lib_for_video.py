@@ -68,7 +68,10 @@ def speed_fix(note,speed):
     beat=note['time']
     for i in range(len(speed)):
         if beat>=speed[i]["startTime"] and beat<speed[i]["endTime"]:
-            value=value/speed[i]["value"]
+            try:
+                value=value/speed[i]["value"]
+            except:
+                value=0
             break
     return value
 
