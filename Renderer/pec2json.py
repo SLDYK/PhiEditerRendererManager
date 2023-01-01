@@ -115,55 +115,55 @@ def pec2json(filePath):
             "judgeLineList":[]}
     Num_judgeline=[]
     for i in range(len(data)):
-        if "n" in data[i]:
-            if "n1" in data[i]:
-                notes.append({"type":1,
-                            "line":int(data[i].split()[1]),
-                            "positionX":float(data[i].split()[3])/1024*9,
-                            "time":float(data[i].split()[2])*32,
-                            "holdTime":0,
-                            "speed":float(data[i+1].split()[1]),
-                            "above":float(data[i].split()[4]),
-                            "isFake":float(data[i].split()[5])})
-                if float(data[i].split()[5])==0:
-                    Num_note+=1
-                Num_judgeline.append(int(data[i].split()[1]))
-            elif "n2" in data[i]:
-                notes.append({"type":3,
-                            "line":int(data[i].split()[1]),
-                            "positionX":float(data[i].split()[4])/1024*9,
-                            "time":float(data[i].split()[2])*32,
-                            "holdTime":float(data[i].split()[3])*32-float(data[i].split()[2])*32,
-                            "speed":float(data[i+1].split()[1]),
-                            "above":float(data[i].split()[5]),
-                            "isFake":float(data[i].split()[6])})
-                if float(data[i].split()[6])==0:
-                    Num_note+=1
-                Num_judgeline.append(int(data[i].split()[1]))
-            elif "n3" in data[i]:
-                notes.append({"type":4,
-                            "line":int(data[i].split()[1]),
-                            "positionX":float(data[i].split()[3])/1024*9,
-                            "time":float(data[i].split()[2])*32,
-                            "holdTime":0,
-                            "speed":float(data[i+1].split()[1]),
-                            "above":float(data[i].split()[4]),
-                            "isFake":float(data[i].split()[5])})
-                if float(data[i].split()[5])==0:
-                    Num_note+=1
-                Num_judgeline.append(int(data[i].split()[1]))
-            elif "n4" in data[i]:
-                notes.append({"type":2,
-                            "line":int(data[i].split()[1]),
-                            "positionX":float(data[i].split()[3])/1024*9,
-                            "time":float(data[i].split()[2])*32,
-                            "holdTime":0,
-                            "speed":float(data[i+1].split()[1]),
-                            "above":float(data[i].split()[4]),
-                            "isFake":float(data[i].split()[5])})
-                if float(data[i].split()[5])==0:
-                    Num_note+=1
-                Num_judgeline.append(int(data[i].split()[1]))
+        if float(data[i].split()[2])*32>0:
+                if "n1" in data[i]:
+                    notes.append({"type":1,
+                                "line":int(data[i].split()[1]),
+                                "positionX":float(data[i].split()[3])/1024*9,
+                                "time":float(data[i].split()[2])*32,
+                                "holdTime":0,
+                                "speed":float(data[i+1].split()[1]),
+                                "above":float(data[i].split()[4]),
+                                "isFake":float(data[i].split()[5])})
+                    if float(data[i].split()[5])==0:
+                        Num_note+=1
+                    Num_judgeline.append(int(data[i].split()[1]))
+                elif "n2" in data[i]:
+                    notes.append({"type":3,
+                                "line":int(data[i].split()[1]),
+                                "positionX":float(data[i].split()[4])/1024*9,
+                                "time":float(data[i].split()[2])*32,
+                                "holdTime":float(data[i].split()[3])*32-float(data[i].split()[2])*32,
+                                "speed":float(data[i+1].split()[1]),
+                                "above":float(data[i].split()[5]),
+                                "isFake":float(data[i].split()[6])})
+                    if float(data[i].split()[6])==0:
+                        Num_note+=1
+                    Num_judgeline.append(int(data[i].split()[1]))
+                elif "n3" in data[i]:
+                    notes.append({"type":4,
+                                "line":int(data[i].split()[1]),
+                                "positionX":float(data[i].split()[3])/1024*9,
+                                "time":float(data[i].split()[2])*32,
+                                "holdTime":0,
+                                "speed":float(data[i+1].split()[1]),
+                                "above":float(data[i].split()[4]),
+                                "isFake":float(data[i].split()[5])})
+                    if float(data[i].split()[5])==0:
+                        Num_note+=1
+                    Num_judgeline.append(int(data[i].split()[1]))
+                elif "n4" in data[i]:
+                    notes.append({"type":2,
+                                "line":int(data[i].split()[1]),
+                                "positionX":float(data[i].split()[3])/1024*9,
+                                "time":float(data[i].split()[2])*32,
+                                "holdTime":0,
+                                "speed":float(data[i+1].split()[1]),
+                                "above":float(data[i].split()[4]),
+                                "isFake":float(data[i].split()[5])})
+                    if float(data[i].split()[5])==0:
+                        Num_note+=1
+                    Num_judgeline.append(int(data[i].split()[1]))
         elif "c" in data[i]:
             if "cm" in data[i]:
                 move_event.append({"line":int(data[i].split()[1]),
