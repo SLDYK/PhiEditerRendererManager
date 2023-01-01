@@ -10,7 +10,7 @@ def audio2wav(path: str):
     extension = os.path.splitext(path)[1].replace(".","")
     audio = AudioSegment.from_file(path, format=extension)
     # 保存为 WAV 格式
-    export_path = os.path.join(cur_path, "tmp/music.wav")
+    export_path ="tmp/music.wav"
     audio.export(export_path, format="wav")
     
 def PhiAudio(audioPath, hitsoundlist, bpm, hitsoundoffset, musicoffset, length,var,showframe):
@@ -22,9 +22,9 @@ def PhiAudio(audioPath, hitsoundlist, bpm, hitsoundoffset, musicoffset, length,v
         output = output.overlay(music, position=0)
     else:
         output = output.overlay(music, position=musicoffset)
-    tap = AudioSegment.from_wav(os.path.join(cur_path, 'Source/hitsound/HitSong0.wav'))
-    drag = AudioSegment.from_wav(os.path.join(cur_path, 'Source/hitsound/HitSong1.wav'))
-    flick = AudioSegment.from_wav(os.path.join(cur_path, 'Source/hitsound/HitSong2.wav'))
+    tap = AudioSegment.from_wav('Source/hitsound/HitSong0.wav')
+    drag = AudioSegment.from_wav('Source/hitsound/HitSong1.wav')
+    flick = AudioSegment.from_wav('Source/hitsound/HitSong2.wav')
     
     # print(hitsoundlist)
     for i in range(0, len(hitsoundlist)):
@@ -42,7 +42,7 @@ def PhiAudio(audioPath, hitsoundlist, bpm, hitsoundoffset, musicoffset, length,v
         output = output.overlay(sound, position=beat2msec(currentBeat, bpm, hitsoundoffset))
     
     print("音频生成成功")
-    export_path = os.path.join(cur_path, "tmp/hitsound.wav")
+    export_path ="tmp/hitsound.wav"
 
     output.export(export_path, format="wav")  # 保存文件
 
