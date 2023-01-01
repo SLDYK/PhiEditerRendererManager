@@ -251,7 +251,7 @@ def pec2json(filePath):
         a_line["speedEvents"].insert(0,{"startTime":-999999,
                                                 "endTime":a_line["speedEvents"][0]["startTime"],
                                                 "value":0,
-                                                "floorPosotion":0})
+                                                "floorPosition":0})
         
         for j in range(len(notes)):
             if notes[j]["line"]==i:
