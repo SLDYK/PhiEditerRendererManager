@@ -58,6 +58,11 @@ def renderer():
                 else:
                     Highlight=False
                     
+                if enLineColor.get()=="黄":
+                    LineColor=True
+                else:
+                    LineColor=False
+                    
                 if enNoteSize.get()=="":
                     raise TypeError("input error")
                 else:
@@ -65,7 +70,7 @@ def renderer():
                 
                 setinfo.destroy()
                 
-                start_rendering(name,level,width,hight,fps,chart,picture,song,Highlight,blur,notesize)
+                start_rendering(name,level,width,hight,fps,chart,picture,song,Highlight,blur,notesize,LineColor)
                 
             except :#不可用则报错
                 with open("ErrorsLog.txt","a",encoding="utf_8") as t:
@@ -151,21 +156,30 @@ def renderer():
         HighLight.place(x=350,y=80,anchor="e")
         var2=tkinter.StringVar()
         var2.set("开启")
-        enHighLight=ttk.Combobox(setinfo,width=20,textvariable=var2,state="readonly")
+        enHighLight=ttk.Combobox(setinfo,width=5,textvariable=var2,state="readonly")
         enHighLight['values']=("开启",
                           "关闭")
         enHighLight.place(x=350,y=80,anchor="w")
         
+        LineColor=tkinter.Label(setinfo, text='判定线颜色:',font=('',10),width=10,height=1)
+        LineColor.place(x=490,y=80,anchor="e")
+        var3=tkinter.StringVar()
+        var3.set("黄")
+        enLineColor=ttk.Combobox(setinfo,width=5,textvariable=var3,state="readonly")
+        enLineColor['values']=("黄",
+                          "白")
+        enLineColor.place(x=490,y=80,anchor="w")
+        
         NoteSize=tkinter.Label(setinfo, text='Note大小:',font=('',10),width=10,height=1)
         NoteSize.place(x=350,y=130,anchor="e")
         enNoteSize=tkinter.Entry(setinfo,show=None,width=22)
-        enNoteSize.insert(0,"1.4 #推荐值#")
+        enNoteSize.insert(0,"1.4 #推荐#")
         enNoteSize.place(x=350,y=130,anchor="w")
         
         Blur=tkinter.Label(setinfo, text='背景模糊度:',font=('',10),width=10,height=1)
         Blur.place(x=350,y=180,anchor="e")
         enBlur=tkinter.Entry(setinfo,show=None,width=22)
-        enBlur.insert(0,"70 #推荐值#")
+        enBlur.insert(0,"70 #推荐#")
         enBlur.place(x=350,y=180,anchor="w")
         
         OpenZip=tkinter.Button(setinfo,text='选择Zip文件',font=('',10),width=22,height=1,
@@ -179,11 +193,10 @@ def renderer():
     
     init()
 
-
 root=tkinter.Tk()
 root.title("PE/json Chart Renderer")
 root.geometry("400x300")
-title1=tkinter.Label(root, text='PE/json Chart Renderer 0.2.0',font=('',12),width=30,height=2)
+title1=tkinter.Label(root, text='PE/json Chart Renderer 0.2.1',font=('',12),width=30,height=2)
 title1.place(relx=0.5,rely=0.1,anchor=tkinter.CENTER)
 botton1=tkinter.Button(root,text='Chart rendering',font=('',10),width=20,height=2,command=renderer)
 botton1.place(relx=0.5,rely=0.33,anchor=tkinter.CENTER)
