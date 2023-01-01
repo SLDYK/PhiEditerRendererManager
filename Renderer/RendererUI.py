@@ -196,7 +196,7 @@ def renderer():
 root=tkinter.Tk()
 root.title("PE/json Chart Renderer")
 root.geometry("400x300")
-title1=tkinter.Label(root, text='PE/json Chart Renderer 0.2.1',font=('',12),width=30,height=2)
+title1=tkinter.Label(root, text='PE/json Chart Renderer 0.2.2',font=('',12),width=30,height=2)
 title1.place(relx=0.5,rely=0.1,anchor=tkinter.CENTER)
 botton1=tkinter.Button(root,text='Chart rendering',font=('',10),width=20,height=2,command=renderer)
 botton1.place(relx=0.5,rely=0.33,anchor=tkinter.CENTER)
