@@ -25,7 +25,7 @@
 ### Mac
 Mac因未知原因，打包后无法打开
 
-> 详见https://github.com/SLDYK/Renderer/issue/2
+> 详见https://github.com/SLDYK/Renderer/issues/2
 
 因而没有打包版，请参照"开发"板块完成依赖安装后在终端定位到你的Renderer文件夹并依据你的python版本输入
 
