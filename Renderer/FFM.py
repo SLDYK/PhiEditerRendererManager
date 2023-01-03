@@ -3,7 +3,7 @@ import shlex
 import subprocess
 class FFmpeg(object):
     def __init__(
-        self, executable="ffmpeg.exe", global_options=None, inputs=None, outputs=None):
+        self, executable="ffmpeg", global_options=None, inputs=None, outputs=None):
         self.executable = executable
         self._cmd = [executable]
         global_options = global_options or []

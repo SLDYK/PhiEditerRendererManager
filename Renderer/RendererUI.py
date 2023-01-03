@@ -6,6 +6,11 @@ import traceback
 import tkinter
 from video_maker import start_rendering
 from pec2json import chartify
+import os
+import sys
+
+Path = os.path.dirname(os.path.abspath(sys.argv[0]))
+os.chdir(Path)
 
 def renderer():
     

@@ -16,8 +16,6 @@ from lib_for_video import mkdir, linepos
 from lib_for_audio import audio2wav, PhiAudio, video_add_audio
 from pec2json import pec2json
 
-cur_path = os.path.dirname(__file__)
-
 def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,HighLight,Blur,noteSize,LineColor):#主程序
     
     showframe=tkinter.Toplevel()

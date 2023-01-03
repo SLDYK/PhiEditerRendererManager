@@ -115,7 +115,8 @@ def pec2json(filePath):
             "judgeLineList":[]}
     Num_judgeline=[]
     for i in range(len(data)):
-        if float(data[i].split()[2])*32>0:
+        if "n" in data[i]:
+            if float(data[i].split()[2])*32>0:
                 if "n1" in data[i]:
                     notes.append({"type":1,
                                 "line":int(data[i].split()[1]),
