@@ -19,6 +19,7 @@
 <img alt="截屏" src="https://i.postimg.cc/J0ZyywS2/2023-01-03-8-47-32.png">
 
 在export文件夹获取你的文件
+详见解压后的"PhiEditer_Renderer使用说明"
 
 ### Mac
 Mac因未知原因，打包后无法打开（详见https://github.com/SLDYK/Renderer/issue/2），因而没有打包版，请参照“发展”板块完成依赖安装后在终端定位到你的Renderer文件夹并依据你的python版本输入
