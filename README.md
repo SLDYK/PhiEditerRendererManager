@@ -19,6 +19,7 @@
 <img alt="截屏" src="https://i.postimg.cc/J0ZyywS2/2023-01-03-8-47-32.png">
 
 在export文件夹获取你的文件
+
 详见解压后的"PhiEditer_Renderer使用说明"
 
 ### Mac
