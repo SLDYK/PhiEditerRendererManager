@@ -46,17 +46,17 @@ Mac因未知原因，打包后无法打开
 
 > pip（或pip3）install -r requirements.txt
 
-### ffmpeg和ffprobe配置
+### ffmpeg配置
 
 由于程序中调用了需要ffmpeg和ffprobe的函数，请按以下方法配置
 
 **Win**
 
-请将"你拉取的仓库/ffmpeg配置/Win"目录下所有文件复制到"你拉取的仓库/Renderer"目录下
+由于文件过大，无法上传，请进入QQ群695269639下载"群文件-录制器散装"下载"ffmpeg.exe"和"ffprobe.exe"，并移动至"你拉取的仓库/Renderer"
 
 **Mac/linux**
 
-请将"你拉取的仓库/ffmpeg配置/其他"目录下所有文件复制到"你拉取的仓库/Renderer"目录下
+请将"你拉取的仓库/ffmpeg配置/其他"目录下所有可执行文件复制到"你拉取的仓库/Renderer"目录下
 
 打开"你拉取的仓库/Renderer/FFM.py"
 
