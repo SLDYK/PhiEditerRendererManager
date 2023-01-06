@@ -9,10 +9,7 @@ from pec2json import chartify
 import os
 import sys
 
-Path = os.path.dirname(os.path.abspath(sys.argv[0]))
-os.chdir(Path)
-
-def renderer():
+def renderer(item):
     
     def init():#谱面基本信息框
         
@@ -92,7 +89,14 @@ def renderer():
             else:
                 filePath=filedialog.askopenfilename(filetypes=[('音频文件','.mp3 .wav .m4a .ogg .aac')])
                 enSongPath.insert(0,filePath)
-          
+        
+        try:
+            with open("PEdata","r",encoding="utf_8") as p:
+                PEdata=p.read()
+                p.close()
+        except:
+            pass    
+        
         setinfo=tkinter.Toplevel()
         setinfo.title("Settings")
         setinfo.geometry("600x420")
@@ -187,26 +191,38 @@ def renderer():
         enBlur.insert(0,"70 #推荐#")
         enBlur.place(x=350,y=180,anchor="w")
         
-        OpenZip=tkinter.Button(setinfo,text='选择Zip文件',font=('',10),width=22,height=1,
-                            command=lambda:messagebox.showinfo("肥肠抱歉","这个功能还没做"))
-        OpenZip.place(x=180,y=380,anchor=tkinter.CENTER)
+        Advanced=tkinter.Button(setinfo,text='高级设置',font=('',10),width=22,height=1,
+                            command=lambda:messagebox.showinfo("Sorry","Coming Soon"))
+        Advanced.place(x=180,y=380,anchor=tkinter.CENTER)
         
         done=tkinter.Button(setinfo,text='下一步',font=('',10),width=22,height=1,
                             command=lambda:infoed())
         done.place(x=420,y=380,anchor=tkinter.CENTER)
+        
+        if item == "":
+            pass
+        else:
+            enName.insert(0,item[0])
+            enLevel.insert(0,item[4])
+            enChartPath.insert(0,PEdata+item[3])
+            enPicturePath.insert(0,PEdata+"Resources/"+item[2])
+            enSongPath.insert(0,PEdata+"Resources/"+item[1])
+        
         setinfo.mainloop()
     
     init()
-
-root=tkinter.Tk()
-root.title("PE/json Chart Renderer")
-root.geometry("400x300")
-title1=tkinter.Label(root, text='PE/json Chart Renderer 0.2.2',font=('',12),width=30,height=2)
-title1.place(relx=0.5,rely=0.1,anchor=tkinter.CENTER)
-botton1=tkinter.Button(root,text='Chart rendering',font=('',10),width=20,height=2,command=renderer)
-botton1.place(relx=0.5,rely=0.33,anchor=tkinter.CENTER)
-botton2=tkinter.Button(root,text='Convert pec to json',font=('',10),width=20,height=2,command=chartify)
-botton2.place(relx=0.5,rely=0.55,anchor=tkinter.CENTER)
-title2=tkinter.Label(root, text='注：支持PE0.1.9.2的pec格式\nformatVersion3的官谱json格式',font=('',12),width=100,height=3)
-title2.place(relx=0.5,rely=0.85,anchor=tkinter.CENTER)
-root.mainloop()
+if __name__ == "__main__":
+    Path = os.path.dirname(os.path.abspath(sys.argv[0]))
+    os.chdir(Path)
+    root=tkinter.Tk()
+    root.title("PE/json Chart Renderer")
+    root.geometry("400x300")
+    title1=tkinter.Label(root, text='PE/json Chart Renderer 0.2.3',font=('',12),width=30,height=2)
+    title1.place(relx=0.5,rely=0.1,anchor=tkinter.CENTER)
+    botton1=tkinter.Button(root,text='Chart rendering',font=('',10),width=20,height=2,command=lambda:renderer(""))
+    botton1.place(relx=0.5,rely=0.33,anchor=tkinter.CENTER)
+    botton2=tkinter.Button(root,text='Convert pec to json',font=('',10),width=20,height=2,command=chartify)
+    botton2.place(relx=0.5,rely=0.55,anchor=tkinter.CENTER)
+    title2=tkinter.Label(root, text='注：支持PE0.1.9.2的pec格式\nformatVersion3的官谱json格式',font=('',12),width=100,height=3)
+    title2.place(relx=0.5,rely=0.85,anchor=tkinter.CENTER)
+    root.mainloop()
