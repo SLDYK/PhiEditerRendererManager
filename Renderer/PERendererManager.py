@@ -8,7 +8,6 @@ import os
 import traceback
 from RendererUI import renderer
 
-
 def settings_fix(filePath):
     with open(filePath,"r",encoding="utf_8") as t:
         chartdata=t.readlines()
@@ -27,7 +26,7 @@ def settings_fix(filePath):
                     t.write(chartdata[i+5])
                     t.write(chartdata[i+6])
                     t.write(chartdata[i+7])
-                    if len(chartdata)>=i+8:
+                    if len(chartdata)>i+8:
                         if "Painter: " in chartdata[i+8]:
                             t.write(chartdata[i+8])
                             t.write("\n")
@@ -70,15 +69,21 @@ def load():
         with open("PEdata","w",encoding="utf_8") as t:
             t.write(PEPath.replace("PhiEditer.exe",""))
             t.close()
-        load()
+        if "PhiEditer.exe" in PEPath:
+            load()
+            return messagebox.showinfo("Success","成功绑定 PhiEditer")
+        else:
+            return messagebox.showinfo("Error","无效目录")
         
 def importchart():
     try:
         with open("PEdata","r",encoding="utf_8") as p:
             PEdata=p.read()
             p.close()
+        if PEdata=="":
+            raise "PEdata未找到有效路径"
     except:
-        pass
+        return messagebox.showinfo("Error","未绑定您的 PhiEditer")
     picture=["png","jpg","jpeg"]
     music=["mp3","wav","ogg","flac"]
     filePath=filedialog.askopenfilename(filetypes=[('PE谱面','.zip')])
@@ -99,23 +104,40 @@ def importchart():
             fz.extract(file,PEdata+"Resources/")
             picture=file
     for file in fz.namelist():
-        if file=="Settings.txt":
+        if file=="Settings.txt" or file=="info.txt":
             fz.extract(file,"infodir/")
-            with open("infodir/settings.txt","r",encoding="utf_8") as t:
-                data=t.readlines()
-                for i in range(len(data)):
-                    if "Level: " in data[i]:
-                        level=data[i][7:-1]
-                    elif "Charter: " in data[i]:
-                        charter=data[i][9:-1]
-                    elif "Composer: " in data[i]:
-                        composer=data[i][10:-1]
-                    elif "Painter: " in data[i]:
-                        painter=data[i][9:-1]
-                    elif "Name: " in data[i]:
-                        name=data[i][6:-1]
-                t.close()
-            os.remove("infodir/settings.txt")
+            try:
+                with open("infodir/settings.txt","r",encoding="utf_8") as t:
+                    data=t.readlines()
+                    for i in range(len(data)):
+                        if "Level: " in data[i]:
+                            level=data[i][7:-1]
+                        elif "Charter: " in data[i]:
+                            charter=data[i][9:-1]
+                        elif "Composer: " in data[i]:
+                            composer=data[i][10:-1]
+                        elif "Painter: " in data[i]:
+                            painter=data[i][9:-1]
+                        elif "Name: " in data[i]:
+                            name=data[i][6:-1]
+                    t.close()
+                os.remove("infodir/settings.txt")
+            except:
+                with open("infodir/info.txt","r",encoding="utf_8") as t:
+                    data=t.readlines()
+                    for i in range(len(data)):
+                        if "Level: " in data[i]:
+                            level=data[i][7:-1]
+                        elif "Charter: " in data[i]:
+                            charter=data[i][9:-1]
+                        elif "Composer: " in data[i]:
+                            composer=data[i][10:-1]
+                        elif "Painter: " in data[i]:
+                            painter=data[i][9:-1]
+                        elif "Name: " in data[i]:
+                            name=data[i][6:-1]
+                    t.close()
+                os.remove("infodir/info.txt")
             os.rmdir("infodir")
             break
         elif file=="info.csv":
@@ -170,8 +192,10 @@ def exportchart(item):
         with open("PEdata","r",encoding="utf_8") as p:
             PEdata=p.read()
             p.close()
+        if PEdata=="":
+            raise "PEdata未找到有效路径"
     except:
-        pass
+        return messagebox.showinfo("Error","未绑定您的 PhiEditer")
     def infocsv(infolist):
         setinfo.destroy()
         item=infolist[8]
@@ -283,8 +307,10 @@ def deletechart(item):
         with open("PEdata","r",encoding="utf_8") as p:
             PEdata=p.read()
             p.close()
+        if PEdata=="":
+            raise "PEdata未找到有效路径"
     except:
-        pass
+        return messagebox.showinfo("Error","未绑定您的 PhiEditer")
     if item=="":
         messagebox.showinfo("Error","未选择谱面")
     else:
@@ -319,6 +345,7 @@ def editinfo(item):
     
     def newinfo(infolist):
         setinfo.destroy()
+        PEdata=infolist[9]
         info=("#\nName: "+infolist[3]+
               "\nSong: "+infolist[1]+
               "\nPicture: "+infolist[2]+
@@ -327,12 +354,6 @@ def editinfo(item):
               "\nComposer: "+infolist[4]+
               "\nCharter: "+infolist[7]+
               "\nPainter: "+infolist[6])
-        try:
-            with open("PEdata","r",encoding="utf_8") as p:
-                PEdata=p.read()
-                p.close()
-        except:
-            pass
         
         with open(PEdata+"Settings.txt","r",encoding="utf_8") as t:
             settings=t.read()
@@ -342,76 +363,88 @@ def editinfo(item):
             t.close()
         load()
     
-    oldinfo=("#\nName: "+item[0]+
-            "\nSong: "+item[1]+
-            "\nPicture: "+item[2]+
-            "\nChart: "+item[3]+
-            "\nLevel: "+item[4]+
-            "\nComposer: "+item[5]+
-            "\nCharter: "+item[6]+
-            "\nPainter: "+item[7])
+    try:
+        with open("PEdata","r",encoding="utf_8") as p:
+            PEdata=p.read()
+            p.close()
+        if PEdata=="":
+            raise "PEdata未找到有效路径"
+    except:
+        return messagebox.showinfo("Error","未绑定您的 PhiEditer")
     
-    setinfo=tkinter.Toplevel()
-    setinfo.title("编辑谱面信息")
-    setinfo.geometry("300x300")
-    subtitle=tkinter.Label(setinfo, text="编辑谱面信息",font=('', 10),width=30,height=1)
-    subtitle.place(relx=0.5,rely=0.1,anchor=tkinter.CENTER)
+    if item=="":
+        messagebox.showinfo("Error","未选择谱面")
+    else:
+        oldinfo=("#\nName: "+item[0]+
+                "\nSong: "+item[1]+
+                "\nPicture: "+item[2]+
+                "\nChart: "+item[3]+
+                "\nLevel: "+item[4]+
+                "\nComposer: "+item[5]+
+                "\nCharter: "+item[6]+
+                "\nPainter: "+item[7])
+        
+        setinfo=tkinter.Toplevel()
+        setinfo.title("编辑谱面信息")
+        setinfo.geometry("300x300")
+        subtitle=tkinter.Label(setinfo, text="编辑谱面信息",font=('', 10),width=30,height=1)
+        subtitle.place(relx=0.5,rely=0.1,anchor=tkinter.CENTER)
+        
+        name=tkinter.Label(setinfo, text='名称:',font=('',10),width=30,height=1)
+        name.place(relx=0.15,rely=0.19,anchor=tkinter.CENTER)
+        enname=tkinter.Entry(setinfo,show=None,width=25)
+        enname.insert(0,item[0])
+        enname.place(relx=0.52,rely=0.19,anchor=tkinter.CENTER)
     
-    name=tkinter.Label(setinfo, text='名称:',font=('',10),width=30,height=1)
-    name.place(relx=0.15,rely=0.19,anchor=tkinter.CENTER)
-    enname=tkinter.Entry(setinfo,show=None,width=25)
-    enname.insert(0,item[0])
-    enname.place(relx=0.52,rely=0.19,anchor=tkinter.CENTER)
-
-    music=tkinter.Label(setinfo, text='音频:',font=('',10),width=30,height=1)
-    music.place(relx=0.15,rely=0.28,anchor=tkinter.CENTER)
-    enmusic=tkinter.Entry(setinfo,show=None,width=25)
-    enmusic.insert(0,item[1])
-    enmusic.place(relx=0.52,rely=0.28,anchor=tkinter.CENTER)
-
-    photo=tkinter.Label(setinfo, text='背景:',font=('',10),width=30,height=1)
-    photo.place(relx=0.15,rely=0.37,anchor=tkinter.CENTER)
-    enphoto=tkinter.Entry(setinfo,show=None,width=25)
-    enphoto.insert(0,item[2])
-    enphoto.place(relx=0.52,rely=0.37,anchor=tkinter.CENTER)
-
-    chart=tkinter.Label(setinfo, text='谱面:',font=('',10),width=30,height=1)
-    chart.place(relx=0.15,rely=0.46,anchor=tkinter.CENTER)
-    enchart=tkinter.Entry(setinfo,show=None,width=25)
-    enchart.insert(0,item[3])
-    enchart.place(relx=0.52,rely=0.46,anchor=tkinter.CENTER)
-
-    level=tkinter.Label(setinfo, text='难度:',font=('',10),width=30,height=1)
-    level.place(relx=0.15,rely=0.55,anchor=tkinter.CENTER)
-    enlevel=tkinter.Entry(setinfo,show=None,width=25)
-    enlevel.insert(0,item[4])
-    enlevel.place(relx=0.52,rely=0.55,anchor=tkinter.CENTER)
-
-    composer=tkinter.Label(setinfo, text='曲师:',font=('',10),width=30,height=1)
-    composer.place(relx=0.15,rely=0.64,anchor=tkinter.CENTER)
-    encomposer=tkinter.Entry(setinfo,show=None,width=25)
-    encomposer.insert(0,item[5])
-    encomposer.place(relx=0.52,rely=0.64,anchor=tkinter.CENTER)
-
-    charter=tkinter.Label(setinfo, text='谱师:',font=('',10),width=30,height=1)
-    charter.place(relx=0.15,rely=0.73,anchor=tkinter.CENTER)
-    encharter=tkinter.Entry(setinfo,show=None,width=25)
-    encharter.insert(0,item[6])
-    encharter.place(relx=0.52,rely=0.73,anchor=tkinter.CENTER)
-
-    illustrator=tkinter.Label(setinfo, text='画师:',font=('',10),width=30,height=1)
-    illustrator.place(relx=0.15,rely=0.82,anchor=tkinter.CENTER)
-    enillustrator=tkinter.Entry(setinfo,show=None,width=25)
-    enillustrator.insert(0,item[7])
-    enillustrator.place(relx=0.52,rely=0.82,anchor=tkinter.CENTER)
-
-    done=tkinter.Button(setinfo,text='确认修改',font=('',10),width=10,height=1,command=lambda:newinfo([enchart.get(),enmusic.get(),enphoto.get(),enname.get(),encomposer.get(),enlevel.get(),enillustrator.get(),encharter.get(),oldinfo]))
-    done.place(relx=0.5,rely=0.92,anchor=tkinter.CENTER)
-    setinfo.mainloop()
+        music=tkinter.Label(setinfo, text='音频:',font=('',10),width=30,height=1)
+        music.place(relx=0.15,rely=0.28,anchor=tkinter.CENTER)
+        enmusic=tkinter.Entry(setinfo,show=None,width=25)
+        enmusic.insert(0,item[1])
+        enmusic.place(relx=0.52,rely=0.28,anchor=tkinter.CENTER)
+    
+        photo=tkinter.Label(setinfo, text='背景:',font=('',10),width=30,height=1)
+        photo.place(relx=0.15,rely=0.37,anchor=tkinter.CENTER)
+        enphoto=tkinter.Entry(setinfo,show=None,width=25)
+        enphoto.insert(0,item[2])
+        enphoto.place(relx=0.52,rely=0.37,anchor=tkinter.CENTER)
+    
+        chart=tkinter.Label(setinfo, text='谱面:',font=('',10),width=30,height=1)
+        chart.place(relx=0.15,rely=0.46,anchor=tkinter.CENTER)
+        enchart=tkinter.Entry(setinfo,show=None,width=25)
+        enchart.insert(0,item[3])
+        enchart.place(relx=0.52,rely=0.46,anchor=tkinter.CENTER)
+    
+        level=tkinter.Label(setinfo, text='难度:',font=('',10),width=30,height=1)
+        level.place(relx=0.15,rely=0.55,anchor=tkinter.CENTER)
+        enlevel=tkinter.Entry(setinfo,show=None,width=25)
+        enlevel.insert(0,item[4])
+        enlevel.place(relx=0.52,rely=0.55,anchor=tkinter.CENTER)
+    
+        composer=tkinter.Label(setinfo, text='曲师:',font=('',10),width=30,height=1)
+        composer.place(relx=0.15,rely=0.64,anchor=tkinter.CENTER)
+        encomposer=tkinter.Entry(setinfo,show=None,width=25)
+        encomposer.insert(0,item[5])
+        encomposer.place(relx=0.52,rely=0.64,anchor=tkinter.CENTER)
+    
+        charter=tkinter.Label(setinfo, text='谱师:',font=('',10),width=30,height=1)
+        charter.place(relx=0.15,rely=0.73,anchor=tkinter.CENTER)
+        encharter=tkinter.Entry(setinfo,show=None,width=25)
+        encharter.insert(0,item[6])
+        encharter.place(relx=0.52,rely=0.73,anchor=tkinter.CENTER)
+    
+        illustrator=tkinter.Label(setinfo, text='画师:',font=('',10),width=30,height=1)
+        illustrator.place(relx=0.15,rely=0.82,anchor=tkinter.CENTER)
+        enillustrator=tkinter.Entry(setinfo,show=None,width=25)
+        enillustrator.insert(0,item[7])
+        enillustrator.place(relx=0.52,rely=0.82,anchor=tkinter.CENTER)
+    
+        done=tkinter.Button(setinfo,text='确认修改',font=('',10),width=10,height=1,command=lambda:newinfo([enchart.get(),enmusic.get(),enphoto.get(),enname.get(),encomposer.get(),enlevel.get(),enillustrator.get(),encharter.get(),oldinfo,PEdata]))
+        done.place(relx=0.5,rely=0.92,anchor=tkinter.CENTER)
+        setinfo.mainloop()
     
 
 root=tkinter.Tk()
-root.title("PERenderer Manager 0.3.0")
+root.title("PERenderer Manager 0.3.2")
 root.geometry("615x300")
 b1=tkinter.Button(root,text='导入谱面',font=('',10),width=8,height=2,command=importchart)
 b1.place(relx=0.077,rely=0.1,anchor=tkinter.CENTER)
