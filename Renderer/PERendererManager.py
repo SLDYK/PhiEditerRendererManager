@@ -17,7 +17,7 @@ def settings_fix(filePath):
             if i<=9:
                 t.write(chartdata[i])
             else:
-                if "#" in chartdata[i]:
+                if chartdata[i][0]=="#":
                     t.write(chartdata[i])
                     t.write(chartdata[i+1])
                     t.write(chartdata[i+2])
@@ -444,7 +444,7 @@ def editinfo(item):
     
 
 root=tkinter.Tk()
-root.title("PERenderer Manager 0.3.2")
+root.title("PERenderer Manager 0.3.3")
 root.geometry("615x300")
 b1=tkinter.Button(root,text='导入谱面',font=('',10),width=8,height=2,command=importchart)
 b1.place(relx=0.077,rely=0.1,anchor=tkinter.CENTER)
