@@ -70,9 +70,14 @@ def renderer(item):
                 else:
                     notesize=float(enNoteSize.get().split()[0])
                 
+                if enSound.get()=="":
+                    raise TypeError("input error")
+                else:
+                    sound_Level=float(enSound.get().split()[0])
+                
                 setinfo.destroy()
                 
-                start_rendering(name,level,width,hight,fps,chart,picture,song,Highlight,blur,notesize,LineColor)
+                start_rendering(name,level,width,hight,fps,chart,picture,song,Highlight,blur,notesize,LineColor,sound_Level)
                 
             except :#不可用则报错
                 with open("ErrorsLog.txt","a",encoding="utf_8") as t:
@@ -181,15 +186,24 @@ def renderer(item):
         
         NoteSize=tkinter.Label(setinfo, text='Note大小:',font=('',10),width=10,height=1)
         NoteSize.place(x=350,y=130,anchor="e")
-        enNoteSize=tkinter.Entry(setinfo,show=None,width=22)
-        enNoteSize.insert(0,"1.4 #推荐#")
+        enNoteSize=tkinter.Entry(setinfo,show=None,width=8)
+        enNoteSize.insert(0,"1.4 #推荐")
         enNoteSize.place(x=350,y=130,anchor="w")
         
         Blur=tkinter.Label(setinfo, text='背景模糊度:',font=('',10),width=10,height=1)
         Blur.place(x=350,y=180,anchor="e")
         enBlur=tkinter.Entry(setinfo,show=None,width=22)
-        enBlur.insert(0,"70 #推荐#")
+        enBlur.insert(0,"70 #推荐")
         enBlur.place(x=350,y=180,anchor="w")
+        
+        Sound=tkinter.Label(setinfo, text='打击音量:',font=('',10),width=10,height=1)
+        Sound.place(x=490,y=130,anchor="e")
+        enSound=tkinter.Entry(setinfo,show=None,width=8)
+        enSound.insert(0,"50 #默认")
+        enSound.place(x=490,y=130,anchor="w")
+        
+        var4=tkinter.StringVar()#高级设置预留位
+        var4.set("")
         
         Advanced=tkinter.Button(setinfo,text='高级设置',font=('',10),width=22,height=1,
                             command=lambda:messagebox.showinfo("Sorry","Coming Soon"))

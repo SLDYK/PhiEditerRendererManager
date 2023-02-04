@@ -47,7 +47,7 @@ class FFmpeg(object):
 class FFprobe(FFmpeg):
 
 
-    def __init__(self, executable="ffprobe.exe", global_options="", inputs=None):
+    def __init__(self, executable="ffprobe", global_options="", inputs=None):
       
         super(FFprobe, self).__init__(
             executable=executable, global_options=global_options, inputs=inputs)

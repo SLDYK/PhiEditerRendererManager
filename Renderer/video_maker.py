@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import json
-import os
 import contextlib
 import wave
 import cv2
@@ -16,22 +15,28 @@ from lib_for_video import mkdir, linepos
 from lib_for_audio import audio2wav, PhiAudio, video_add_audio
 from pec2json import pec2json
 
-def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,HighLight,Blur,noteSize,LineColor):#主程序
+def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,HighLight,Blur,noteSize,LineColor,sound_Level):#主程序
     
     showframe=tkinter.Toplevel()
     showframe.title("Preview(240p)")
     showframe.geometry("400x300")
+    
     var=tkinter.StringVar()
+    
+    pace=tkinter.Label(showframe, textvariable=var,font=('', 10),width=300, height=5)
+    pace.place(x=200,y=40,anchor=tkinter.CENTER)
+    var.set("正在转换音频格式")
+    showframe.update()
     
     hitsoundoffset = 25
     combo_this_frame = 0
     score_this_frame = 0
     chart = {}
     
-
+    
     mkdir("tmp")
     audio2wav(audioPath)
-    
+    showframe.update()
 
     audioPath ="tmp/music.wav"
     
@@ -130,7 +135,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
         flickHL=flick
     
     for i in range(len(hit)):
-        color=color.resize((hit[i].width,hit[i].height))
+        color=color.resize((hit[i].width,hit[i].height))    
         hit[i]=ImageChops.darker(color,hit[i])
         hit[i]=ImageChops.multiply(hit[i],Image.new("RGBA",(hit[i].width,hit[i].height),(230,230,230,255)))
         hit[i]=hit[i].resize((int(hit[i].width*width/1920*noteSize),int(hit[i].height*width/1920*noteSize)))
@@ -158,7 +163,8 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
         random.randint(0,360),
         random.randint(0,360)]
         rotgroup.append(r4)
-
+    var.set("谱面文件预处理")
+    showframe.update()
     if chartPath[-1]=="c":
         chart=pec2json(chartPath)
         BarPerMinute=chart["judgeLineList"][0]["bpm"]
@@ -304,11 +310,10 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     view=tkinter.Label(showframe,image=photo)
     view.place(x=200,y=175,anchor=tkinter.CENTER)
     
-    pace=tkinter.Label(showframe, textvariable=var,font=('', 10),width=300, height=5)
-    pace.place(x=200,y=40,anchor=tkinter.CENTER)
+    
     
     musicoffset = chart["offset"] * 1000
-    PhiAudio(audioPath, hitsoundlist, BarPerMinute, hitsoundoffset, musicoffset, length, var,showframe)
+    PhiAudio(audioPath, hitsoundlist, BarPerMinute, hitsoundoffset, musicoffset, length, var,showframe,sound_Level)
     
     print(totalpaint)
     for i in range(totalpaint):
@@ -447,7 +452,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                     a_hold1HL=hold1HL.rotate(rot, expand=True)
                     pos1=(int(posXY[0][0]-0.5*a_hold1HL.width),int(posXY[0][1]-0.5*a_hold1HL.height))
                     frame.paste(a_hold1HL,pos1,a_hold1HL)
-                a_hold2HL=hold2HL.resize((hold2HL.width,posXY[3])).rotate(rot, expand=True)
+                a_hold2HL=hold2HL.resize((hold2HL.width,posXY[3]+1)).rotate(rot, expand=True)
                 pos2=(int(posXY[1][0]-0.5*a_hold2HL.width),int(posXY[1][1]-0.5*a_hold2HL.height))
                 frame.paste(a_hold2HL,pos2,a_hold2HL)          
             else:
@@ -455,7 +460,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                     a_hold1=hold1.rotate(rot, expand=True)
                     pos1=(int(posXY[0][0]-0.5*a_hold1.width),int(posXY[0][1]-0.5*a_hold1.height))
                     frame.paste(a_hold1,pos1,a_hold1)
-                a_hold2=hold2.resize((hold2.width,posXY[3])).rotate(rot, expand=True)
+                a_hold2=hold2.resize((hold2.width,posXY[3]+1)).rotate(rot, expand=True)
                 pos2=(int(posXY[1][0]-0.5*a_hold2.width),int(posXY[1][1]-0.5*a_hold2.height))
                 frame.paste(a_hold2,pos2,a_hold2)
             a_hold3=hold3.rotate(rot, expand=True)
@@ -535,3 +540,4 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     video_add_audio(vidpath, audpath, export_p, f"{songName}.mp4")
 
     messagebox.showinfo("完成",f"视频已保存至{export_p}文件夹")
+    showframe.destroy()

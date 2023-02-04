@@ -7,6 +7,7 @@ import zipfile
 import os
 import traceback
 from RendererUI import renderer
+import codecs
 
 def settings_fix(filePath):
     with open(filePath,"r",encoding="utf_8") as t:
@@ -49,17 +50,16 @@ def load():
         elem=table.get_children()
         for item in elem:
             table.delete(item)
-        j=0
         for i in range(0,len(chartdata)):
             if chartdata[i]=="#\n":
-                table.insert("",j,values=(chartdata[i+1][6:-1],
+                table.insert("",0,values=(chartdata[i+1][6:-1],
                                           chartdata[i+2][6:-1],
                                           chartdata[i+3][9:-1],
                                           chartdata[i+4][7:-1],
                                           chartdata[i+5][7:-1],
                                           chartdata[i+6][10:-1],
                                           chartdata[i+7][9:-1],
-                                          chartdata[i+8][9:-1]))
+                                          chartdata[i+8][9:-1],))
     except:
         with open("ErrorsLog.txt","a",encoding="utf_8") as t:
             traceback.print_exc(file=t)
@@ -188,6 +188,14 @@ def importchart():
     load()
 
 def exportchart(item):
+    
+    def add_bom(file, bom: bytes):
+        with open(file, 'r+b') as f:
+            org_contents = f.read()
+            f.seek(0)
+            f.write(bom + org_contents)
+    
+    
     try:
         with open("PEdata","r",encoding="utf_8") as p:
             PEdata=p.read()
@@ -204,6 +212,9 @@ def exportchart(item):
             t.write("Chart,Music,Image,Name,Artist,Level,Illustrator,Charter\n谱面,音乐,图片,名称,曲师,等级,曲绘,谱师\n")
             t.write(infolist[0]+","+infolist[1]+","+infolist[2]+","+infolist[3]+","+infolist[4]+","+infolist[5]+","+infolist[6]+","+infolist[7])
             t.close()
+        
+        add_bom("infodata", codecs.BOM_UTF8)
+        
         with open("settingsdata","w",encoding="utf_8") as t:
             t.write("\n#\nName: "+infolist[3]+
                   "\nSong: "+infolist[1]+
@@ -295,13 +306,16 @@ def exportchart(item):
         if holdon:
             savePath=filedialog.asksaveasfilename(initialfile=item[0]+'.zip',filetypes=[("PE谱面", ".zip")])    
             z=zipfile.ZipFile(savePath,"w",zipfile.ZIP_DEFLATED)
-            z.write(item[3],item[3])
-            z.write("Resources/"+item[1],item[1])
-            z.write("Resources/"+item[2],item[2])
+            z.write(PEdata+item[3],item[3])
+            z.write(PEdata+"Resources/"+item[1],item[1])
+            z.write(PEdata+"Resources/"+item[2],item[2])
             z.close()
             messagebox.showinfo("Succes","成功导出谱面")
 
 def deletechart(item):
+    
+    deletelist=list(item)
+    
     #global table
     try:
         with open("PEdata","r",encoding="utf_8") as p:
@@ -311,11 +325,16 @@ def deletechart(item):
             raise "PEdata未找到有效路径"
     except:
         return messagebox.showinfo("Error","未绑定您的 PhiEditer")
-    if item=="":
+    result=False
+    if len(item)==0:
         messagebox.showinfo("Error","未选择谱面")
+    elif len(item)==1:
+        result=messagebox.askyesno("Delete","是否删除谱面 "+table.item((item[0],),"values")[0])
     else:
-        result=messagebox.askyesno("Delete","是否删除谱面")
-        if result:
+        result=messagebox.askyesno("Delete","是否删除 "+table.item((item[0],),"values")[0]+" 等 "+str(len(item))+" 个谱面")
+    if result:
+        for for_delete in deletelist:
+            item=table.item((for_delete,),"values")
             info="\n#\nName: "+item[0]+"\nSong: "+item[1]+"\nPicture: "+item[2]+"\nChart: "+item[3]+"\nLevel: "+item[4]+"\nComposer: "+item[5]+"\nCharter: "+item[6]+"\nPainter: "+item[7]
             with open(PEdata+"Settings.txt","r",encoding="utf_8") as t:
                 basicset=t.read()
@@ -338,8 +357,9 @@ def deletechart(item):
                 os.remove(PEdata+"Resources/"+item[1])
             if item[2] not in undeleted:
                 os.remove(PEdata+"Resources/"+item[2])
-            messagebox.showinfo("Success","已删除谱面 "+item[0])
-        load()
+                
+        messagebox.showinfo("Success","已删除谱面 ")
+    load()
 
 def editinfo(item):
     
@@ -441,23 +461,93 @@ def editinfo(item):
         done=tkinter.Button(setinfo,text='确认修改',font=('',10),width=10,height=1,command=lambda:newinfo([enchart.get(),enmusic.get(),enphoto.get(),enname.get(),encomposer.get(),enlevel.get(),enillustrator.get(),encharter.get(),oldinfo,PEdata]))
         done.place(relx=0.5,rely=0.92,anchor=tkinter.CENTER)
         setinfo.mainloop()
+        
+def check():
     
-
+    def checked():
+        show_lack.destroy()
+    
+    try:
+        with open("PEdata","r",encoding="utf_8") as p:
+            PEdata=p.read()
+            p.close()
+        if PEdata=="":
+            raise "PEdata未找到有效路径"
+        
+    except:
+        return messagebox.showinfo("Error","未绑定您的 PhiEditer")
+    
+    with open(PEdata+"Settings.txt","r",encoding="utf_8") as t:
+        chartdata=t.readlines()
+        t.close()
+    
+    charts=[]
+    files=[]
+    
+    for i in range(0,len(chartdata)):
+        if chartdata[i]=="#\n":
+            charts.append([chartdata[i+1][6:-1],chartdata[i+4][7:-1]])
+            files.append([chartdata[i+1][6:-1],chartdata[i+2][6:-1]])
+            files.append([chartdata[i+1][6:-1],chartdata[i+3][9:-1]])
+    
+    chart_folder=os.listdir(PEdata)
+    files_folder=os.listdir(PEdata+"Resources/")
+    
+    not_exist=[]
+    
+    for item in charts:
+        if item[1] not in chart_folder:
+            not_exist.append(item)
+    
+    for item in files:
+        if item[1] not in files_folder:
+            print(item)
+            print(files_folder)
+            not_exist.append(item)
+    show_lack=tkinter.Toplevel()
+    show_lack.title("资源检查完毕")
+    show_lack.geometry("400x300")
+    
+    if len(not_exist)==0:
+        Ytitle=tkinter.Label(show_lack, text="没有缺失文件",font=('', 10),width=30,height=1)
+    else:
+        Ytitle=tkinter.Label(show_lack, text="缺失文件可能导致 PhiEditer 无法启动/闪退",font=('', 10),width=400,height=1)
+    Ytitle.place(relx=0.5,rely=0.06,anchor=tkinter.CENTER)
+    
+    lack=ttk.Treeview(show_lack,columns=("关卡","文件"),show="headings")
+    lack.column("关卡",width=185)
+    lack.heading("关卡",text="所属关卡")
+    lack.column("文件",width=185)
+    lack.heading("文件",text="缺失文件")
+    for i in range(len(not_exist)):
+        lack.insert("",0,values=(not_exist[i][0],not_exist[i][1],))
+    lack.place(relx=0.5,rely=0.5,anchor=tkinter.CENTER)
+    
+    done=tkinter.Button(show_lack,text='已了解',font=('',10),width=10,height=1,command=checked)
+    done.place(relx=0.5,rely=0.94,anchor=tkinter.CENTER)
+    
+    show_lack.update()
+    
+    
+    
 root=tkinter.Tk()
-root.title("PERenderer Manager 0.3.3")
+root.title("PERenderer Manager 0.3.5")
 root.geometry("615x300")
-b1=tkinter.Button(root,text='导入谱面',font=('',10),width=8,height=2,command=importchart)
-b1.place(relx=0.077,rely=0.1,anchor=tkinter.CENTER)
-b2=tkinter.Button(root,text='导出谱面',font=('',10),width=8,height=2,command=lambda:exportchart(table.item(table.selection(),"values")))
-b2.place(relx=0.197,rely=0.1,anchor=tkinter.CENTER)
-b3=tkinter.Button(root,text='删除谱面',font=('',10),width=8,height=2,command=lambda:deletechart(table.item(table.selection(),"values")))
-b3.place(relx=0.317,rely=0.1,anchor=tkinter.CENTER)
-b4=tkinter.Button(root,text='编辑信息',font=('',10),width=8,height=2,command=lambda:editinfo(table.item(table.selection(),"values")))
-b4.place(relx=0.437,rely=0.1,anchor=tkinter.CENTER)
-b5=tkinter.Button(root,text='视频渲染',font=('',10),width=8,height=2,command=lambda:renderer(table.item(table.selection(),"values")))
-b5.place(relx=0.557,rely=0.1,anchor=tkinter.CENTER)
-b6=tkinter.Button(root,text='加载数据',font=('',10),width=8,height=2,command=load)
-b6.place(relx=0.885,rely=0.1,anchor=tkinter.CENTER)
+b1=tkinter.Button(root,text='导入谱面',font=('',10),width=9,height=1,command=importchart)
+b1.place(relx=0.08,rely=0.055,anchor=tkinter.CENTER)
+b2=tkinter.Button(root,text='导出谱面',font=('',10),width=9,height=1,command=lambda:exportchart(table.item(table.selection(),"values")))
+b2.place(relx=0.2,rely=0.055,anchor=tkinter.CENTER)
+b3=tkinter.Button(root,text='删除谱面',font=('',10),width=9,height=1,command=lambda:deletechart(table.selection()))
+b3.place(relx=0.32,rely=0.055,anchor=tkinter.CENTER)
+b4=tkinter.Button(root,text='编辑信息',font=('',10),width=9,height=1,command=lambda:editinfo(table.item(table.selection(),"values")))
+b4.place(relx=0.08,rely=0.14,anchor=tkinter.CENTER)
+b5=tkinter.Button(root,text='视频渲染',font=('',10),width=9,height=1,command=lambda:renderer(table.item(table.selection(),"values")))
+b5.place(relx=0.2,rely=0.14,anchor=tkinter.CENTER)
+#b6=tkinter.Button(root,text='检查资源',font=('',10),width=9,height=1,command=check)
+b6=tkinter.Button(root,text='检查资源',font=('',10),width=9,height=1,command=lambda:print(table.selection()))
+b6.place(relx=0.32,rely=0.14,anchor=tkinter.CENTER)
+b7=tkinter.Button(root,text='加载数据',font=('',10),width=8,height=2,command=load)
+b7.place(relx=0.885,rely=0.1,anchor=tkinter.CENTER)
 table=ttk.Treeview(root,columns=("名称","音频","背景","谱面","难度","曲师","谱师","画师"),show="headings")
 table.column("名称",width=70)
 table.column("音频",width=70)

@@ -40,7 +40,7 @@ def present_floor(beat,speed,BPM):
             starttime=speed[i]["startTime"]
             floor=floorstart+(beat-starttime)/32/BPM*60*speed[i]["value"]
             break
-    return [floor,floor+5]
+    return [floor-0.005,floor+5]
 
 def end_floor(beat,speed,BPM):
     for i in range(len(speed)):

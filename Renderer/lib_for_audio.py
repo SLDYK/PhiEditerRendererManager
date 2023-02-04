@@ -3,6 +3,7 @@ import os
 from pydub import AudioSegment
 from lib_for_video import beat2msec
 from FFM import FFmpeg
+import traceback
  
 cur_path = os.path.dirname(__file__)
 
@@ -13,7 +14,7 @@ def audio2wav(path: str):
     export_path ="tmp/music.wav"
     audio.export(export_path, format="wav")
     
-def PhiAudio(audioPath, hitsoundlist, bpm, hitsoundoffset, musicoffset, length,var,showframe):
+def PhiAudio(audioPath, hitsoundlist, bpm, hitsoundoffset, musicoffset, length,var,showframe,sound_Level):
     musicoffset = -musicoffset
     output = AudioSegment.silent(duration=length * 1000)
     music = AudioSegment.from_wav(audioPath)
@@ -28,17 +29,16 @@ def PhiAudio(audioPath, hitsoundlist, bpm, hitsoundoffset, musicoffset, length,v
     
     # print(hitsoundlist)
     for i in range(0, len(hitsoundlist)):
-        var.set("正在生成音频 "+str(round(100*i/len(hitsoundlist),0))+"%")
+        var.set("正在生成音频 "+str(round(100*i/len(hitsoundlist),2))+"%")
         showframe.update()
         currentNote = hitsoundlist[i][1]
         currentBeat = hitsoundlist[i][0]
-        if(currentNote == 1 or currentNote == 3):
-            sound = tap
+        if currentNote == 1 or currentNote == 3:
+            sound = tap.apply_gain((sound_Level-50)/2)
         elif(currentNote == 2):
-            sound = drag
+            sound = drag.apply_gain((sound_Level-50)/2)
         else:
-            sound = flick
-        
+            sound = flick.apply_gain((sound_Level-50)/2)
         output = output.overlay(sound, position=beat2msec(currentBeat, bpm, hitsoundoffset))
     
     print("音频生成成功")
