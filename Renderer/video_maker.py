@@ -167,7 +167,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
             #         98.60132971832694,99.10712498212337,99.498743710662,
              #        99.77753031397178,99.94442900376633,100]
     for i in range(30):
-        a_particle=Image.new("RGBA",(int(0.5*particle_size[i]*width/1920),int(0.5*particle_size[i]*width/1920)),(223,210,140,int((100-particle_alpha[i])*1.7)))
+        a_particle=Image.new("RGBA",(int(0.5*particle_size[i]*1.1*width/1920),int(0.5*particle_size[i]*1.1*width/1920)),(223,210,140,int((100-particle_alpha[i])*1.7)))
         particle.append(a_particle)
         
     rotgroup=[]
