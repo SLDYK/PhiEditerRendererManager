@@ -426,7 +426,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                         hold_this_frame.append(chart["judgeLineList"][k]["notesAbove"][j])
                     elif chart["judgeLineList"][k]["notesAbove"][j]["type"]!=5:
                         note_this_frame.append(chart["judgeLineList"][k]["notesAbove"][j])
-                elif i-chart["judgeLineList"][k]["notesAbove"][j]['time']>30*fps/60:
+                elif i-chart["judgeLineList"][k]["notesAbove"][j]['hitFrame']>30*fps/60:
                     chart["judgeLineList"][k]["notesAbove"].pop(j)
                     chart["judgeLineList"][k]["notesAbove"].insert(j,"delete")
                 elif hittime-beat<4 and hittime-beat>=0:
