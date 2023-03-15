@@ -5,6 +5,7 @@ from tkinter import filedialog
 from tkinter import ttk
 import zipfile
 import os
+
 import traceback
 from RendererUI import renderer
 import codecs
@@ -104,10 +105,10 @@ def importchart():
             fz.extract(file,PEdata+"Resources/")
             picture=file
     for file in fz.namelist():
-        if file=="Settings.txt" or file=="info.txt":
+        if ".txt" in file:
             fz.extract(file,"infodir/")
             try:
-                with open("infodir/settings.txt","r",encoding="utf_8") as t:
+                with open("infodir/"+file,"r",encoding="utf_8") as t:
                     data=t.readlines()
                     for i in range(len(data)):
                         if "Level: " in data[i]:
@@ -121,7 +122,7 @@ def importchart():
                         elif "Name: " in data[i]:
                             name=data[i][6:-1]
                     t.close()
-                os.remove("infodir/settings.txt")
+                os.remove("infodir/"+file)
             except:
                 with open("infodir/info.txt","r",encoding="utf_8") as t:
                     data=t.readlines()
@@ -184,7 +185,7 @@ def importchart():
               "\n")
         t.write(info)
         t.close()
-    messagebox.showinfo("Succes","成功导入谱面")
+    messagebox.showinfo("Success","成功导入谱面")
     load()
 
 def exportchart(item):
@@ -235,7 +236,7 @@ def exportchart(item):
         z.close()
         os.remove("infodata")
         os.remove("settingsdata")
-        messagebox.showinfo("Succes","成功导出谱面")
+        messagebox.showinfo("Success","成功导出谱面")
         
     holdon=False
     #global table
@@ -310,7 +311,7 @@ def exportchart(item):
             z.write(PEdata+"Resources/"+item[1],item[1])
             z.write(PEdata+"Resources/"+item[2],item[2])
             z.close()
-            messagebox.showinfo("Succes","成功导出谱面")
+            messagebox.showinfo("Success","成功导出谱面")
 
 def deletechart(item):
     
@@ -407,6 +408,7 @@ def editinfo(item):
         setinfo=tkinter.Toplevel()
         setinfo.title("编辑谱面信息")
         setinfo.geometry("300x300")
+        setinfo.iconbitmap("Source/R.ico")
         subtitle=tkinter.Label(setinfo, text="编辑谱面信息",font=('', 10),width=30,height=1)
         subtitle.place(relx=0.5,rely=0.1,anchor=tkinter.CENTER)
         
@@ -461,7 +463,7 @@ def editinfo(item):
         done=tkinter.Button(setinfo,text='确认修改',font=('',10),width=10,height=1,command=lambda:newinfo([enchart.get(),enmusic.get(),enphoto.get(),enname.get(),encomposer.get(),enlevel.get(),enillustrator.get(),encharter.get(),oldinfo,PEdata]))
         done.place(relx=0.5,rely=0.92,anchor=tkinter.CENTER)
         setinfo.mainloop()
-        
+
 def check():
     
     def checked():
@@ -507,6 +509,7 @@ def check():
     show_lack=tkinter.Toplevel()
     show_lack.title("资源检查完毕")
     show_lack.geometry("400x300")
+    show_lack.iconbitmap("Source/R.ico")
     
     if len(not_exist)==0:
         Ytitle=tkinter.Label(show_lack, text="没有缺失文件",font=('', 10),width=30,height=1)
@@ -531,8 +534,9 @@ def check():
     
     
 root=tkinter.Tk()
-root.title("PERenderer Manager 0.3.5")
+root.title("PERenderer Manager 0.3.6")
 root.geometry("600x300")
+root.iconbitmap("Source/R.ico")
 b1=tkinter.Button(root,text='导入谱面',font=('',10),width=9,height=1,command=importchart)
 b1.place(relx=0.076,rely=0.055,anchor=tkinter.CENTER)
 b2=tkinter.Button(root,text='导出谱面',font=('',10),width=9,height=1,command=lambda:exportchart(table.item(table.selection(),"values")))

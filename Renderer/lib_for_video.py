@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import numpy
+import math
 import os
 from PIL import Image, ImageFilter, ImageChops, ImageEnhance
 
@@ -40,7 +40,7 @@ def present_floor(beat,speed,BPM):
             starttime=speed[i]["startTime"]
             floor=floorstart+(beat-starttime)/32/BPM*60*speed[i]["value"]
             break
-    return [floor-0.005,floor+5]
+    return [floor-0.001,floor+3.333]
 
 def end_floor(beat,speed,BPM):
     for i in range(len(speed)):
@@ -78,42 +78,42 @@ def speed_fix(note,speed):
 def paste_pos(frame,note):
     x1=frame.width*note['linex']
     y1=frame.height*(1-note['liney'])
-    x2=x1+320/3*note['positionX']*numpy.cos(note['rotate']/180*numpy.pi)
-    y2=y1-320/3*note['positionX']*numpy.sin(note['rotate']/180*numpy.pi)
+    x2=x1+320/3*note['positionX']*math.cos(note['rotate']/180*math.pi)
+    y2=y1-320/3*note['positionX']*math.sin(note['rotate']/180*math.pi)
     distance=note['distance']*650*note["speed"]
     if note['Above']:
-        x3=x2+distance*numpy.cos((note['rotate']+90)/180*numpy.pi)
-        y3=y2-distance*numpy.sin((note['rotate']+90)/180*numpy.pi)
+        x3=x2+distance*math.cos((note['rotate']+90)/180*math.pi)
+        y3=y2-distance*math.sin((note['rotate']+90)/180*math.pi)
     else:
-        x3=x2-distance*numpy.cos((note['rotate']+90)/180*numpy.pi)
-        y3=y2+distance*numpy.sin((note['rotate']+90)/180*numpy.pi)
+        x3=x2-distance*math.cos((note['rotate']+90)/180*math.pi)
+        y3=y2+distance*math.sin((note['rotate']+90)/180*math.pi)
     return [x3,y3]
 
 def effect_pos(frame,note):
     # print(note)
     x1=frame.width*note['linex']
     y1=frame.height*(1-note['liney'])
-    x2=x1+320/3*note['positionX']*numpy.cos(note['rotate']/180*numpy.pi)
-    y2=y1-320/3*note['positionX']*numpy.sin(note['rotate']/180*numpy.pi)
+    x2=x1+320/3*note['positionX']*math.cos(note['rotate']/180*math.pi)
+    y2=y1-320/3*note['positionX']*math.sin(note['rotate']/180*math.pi)
     return [x2,y2]
 
 def paste_hold_pos(frame,hold,beat):
     x1=frame.width*hold['linex']
     y1=frame.height*(1-hold['liney'])
-    x2=x1+320/3*hold['positionX']*numpy.cos(hold['rotate']/180*numpy.pi)
-    y2=y1-320/3*hold['positionX']*numpy.sin(hold['rotate']/180*numpy.pi)
+    x2=x1+320/3*hold['positionX']*math.cos(hold['rotate']/180*math.pi)
+    y2=y1-320/3*hold['positionX']*math.sin(hold['rotate']/180*math.pi)
     distance=hold['distance']*650*hold["speed"]
     distance2=hold['distance2']*650*hold["speed"]
     if hold['Above']:
-        xhead=x2+distance*numpy.cos((hold['rotate']+90)/180*numpy.pi)
-        yhead=y2-distance*numpy.sin((hold['rotate']+90)/180*numpy.pi)
-        xend=x2+distance2*numpy.cos((hold['rotate']+90)/180*numpy.pi)
-        yend=y2-distance2*numpy.sin((hold['rotate']+90)/180*numpy.pi)
+        xhead=x2+distance*math.cos((hold['rotate']+90)/180*math.pi)
+        yhead=y2-distance*math.sin((hold['rotate']+90)/180*math.pi)
+        xend=x2+distance2*math.cos((hold['rotate']+90)/180*math.pi)
+        yend=y2-distance2*math.sin((hold['rotate']+90)/180*math.pi)
     else:
-        xhead=x2-distance*numpy.cos((hold['rotate']+90)/180*numpy.pi)
-        yhead=y2+distance*numpy.sin((hold['rotate']+90)/180*numpy.pi)
-        xend=x2-distance2*numpy.cos((hold['rotate']+90)/180*numpy.pi)
-        yend=y2+distance2*numpy.sin((hold['rotate']+90)/180*numpy.pi)
+        xhead=x2-distance*math.cos((hold['rotate']+90)/180*math.pi)
+        yhead=y2+distance*math.sin((hold['rotate']+90)/180*math.pi)
+        xend=x2-distance2*math.cos((hold['rotate']+90)/180*math.pi)
+        yend=y2+distance2*math.sin((hold['rotate']+90)/180*math.pi)
     if distance>=0 and hold['time']>=beat:
         xbody=0.5*(xhead+xend)
         ybody=0.5*(yhead+yend)
@@ -128,20 +128,20 @@ def paste_hold_pos(frame,hold,beat):
 
 def p4(rotgroup,length,width,img,pos):
     length=length*width/1920*3
-    x1=int(pos[0]-(numpy.cos(rotgroup[0]/180*numpy.pi)*length+0.5*img.width))
-    y1=int(pos[1]-(numpy.sin(rotgroup[0]/180*numpy.pi)*length+0.5*img.height))
-    x2=int(pos[0]-(numpy.cos(rotgroup[1]/180*numpy.pi)*length+0.5*img.width))
-    y2=int(pos[1]-(numpy.sin(rotgroup[1]/180*numpy.pi)*length+0.5*img.height))
-    x3=int(pos[0]-(numpy.cos(rotgroup[2]/180*numpy.pi)*length+0.5*img.width))
-    y3=int(pos[1]-(numpy.sin(rotgroup[2]/180*numpy.pi)*length+0.5*img.height))
-    x4=int(pos[0]-(numpy.cos(rotgroup[3]/180*numpy.pi)*length+0.5*img.width))
-    y4=int(pos[1]-(numpy.sin(rotgroup[3]/180*numpy.pi)*length+0.5*img.height))
+    x1=int(pos[0]-(math.cos(rotgroup[0]/180*math.pi)*length+0.5*img.width))
+    y1=int(pos[1]-(math.sin(rotgroup[0]/180*math.pi)*length+0.5*img.height))
+    x2=int(pos[0]-(math.cos(rotgroup[1]/180*math.pi)*length+0.5*img.width))
+    y2=int(pos[1]-(math.sin(rotgroup[1]/180*math.pi)*length+0.5*img.height))
+    x3=int(pos[0]-(math.cos(rotgroup[2]/180*math.pi)*length+0.5*img.width))
+    y3=int(pos[1]-(math.sin(rotgroup[2]/180*math.pi)*length+0.5*img.height))
+    x4=int(pos[0]-(math.cos(rotgroup[3]/180*math.pi)*length+0.5*img.width))
+    y4=int(pos[1]-(math.sin(rotgroup[3]/180*math.pi)*length+0.5*img.height))
     return [(x1,y1),(x2,y2),(x3,y3),(x4,y4)]
 
 def linepos(hight,width,rotate,xp,yp,aline):
     x0=0.5*width
     y0=0.5*hight
-    k=numpy.tan((-rotate%180)*numpy.pi/180)
+    k=math.tan((-rotate%180)*math.pi/180)
     if k==0:
         y=yp
         x=x0

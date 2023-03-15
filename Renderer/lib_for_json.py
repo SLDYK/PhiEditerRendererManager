@@ -147,6 +147,9 @@ def cut(start,end,starttime,endtime,left,right,ease,point):
     result=start+(end-start)*mult    
     return result
 
+def cut2(start,end,starttime,endtime,left,right,ease,point):
+    return cut(start,end,starttime,endtime,left,right,ease,point)
+
 def beat2sec(beat,bpm,offset):
     time=-offset
     for i in range(0,len(bpm)-1):

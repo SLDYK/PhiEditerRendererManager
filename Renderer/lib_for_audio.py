@@ -3,7 +3,6 @@ import os
 from pydub import AudioSegment
 from lib_for_video import beat2msec
 from FFM import FFmpeg
-import traceback
  
 cur_path = os.path.dirname(__file__)
 

@@ -104,6 +104,7 @@ def renderer(item):
         
         setinfo=tkinter.Toplevel()
         setinfo.title("Settings")
+        setinfo.iconbitmap("Source/R.ico")
         setinfo.geometry("600x420")
         subtitle=tkinter.Label(setinfo,text="设置视频信息",font=('',12),width=30,height=1)
         subtitle.place(x=300,y=30,anchor=tkinter.CENTER)
@@ -126,17 +127,17 @@ def renderer(item):
         var1.set("1920x1080 16:9 60fps")
         enSpecs=ttk.Combobox(setinfo,width=20,textvariable=var1,state="readonly")
         enSpecs['values']=("1920x1080 16:9 60fps",
-                          "1440x1080 4:3  60fps",
-                          "1580x1080 PE   60fps",
-                          "3840x2160 16:9 60fps",
-                          "2880x2160 4:3  60fps",
-                          "3240x2160 PE   60fps",
-                          "1920x1080 16:9 120fps",
-                          "1440x1080 4:3  120fps",
-                          "1620x1080 PE   120fps",
-                          "3840x2160 16:9 120fps",
-                          "2880x2160 4:3  120fps",
-                          "3160x2160 PE   120fps")
+                           "1440x1080 4:3  60fps",
+                           "1580x1080 PE   60fps",
+                           "3840x2160 16:9 60fps",
+                           "2880x2160 4:3  60fps",
+                           "3240x2160 PE   60fps",
+                           "1920x1080 16:9 120fps",
+                           "1440x1080 4:3  120fps",
+                           "1620x1080 PE   120fps",
+                           "3840x2160 16:9 120fps",
+                           "2880x2160 4:3  120fps",
+                           "3160x2160 PE   120fps")
         enSpecs.place(x=100,y=180,anchor="w") 
         
         ChartPath=tkinter.Label(setinfo,text='谱面文件:',font=('',10),width=10,height=1)
@@ -199,7 +200,7 @@ def renderer(item):
         Sound=tkinter.Label(setinfo, text='打击音量:',font=('',10),width=10,height=1)
         Sound.place(x=490,y=130,anchor="e")
         enSound=tkinter.Entry(setinfo,show=None,width=8)
-        enSound.insert(0,"50 #默认")
+        enSound.insert(0,"35 #默认")
         enSound.place(x=490,y=130,anchor="w")
         
         var4=tkinter.StringVar()#高级设置预留位

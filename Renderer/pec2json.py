@@ -125,7 +125,7 @@ def pec2json(filePath):
                                 "holdTime":0,
                                 "speed":float(data[i+1].split()[1]),
                                 "above":float(data[i].split()[4]),
-                                "isFake":float(data[i].split()[5])})
+                                "isFake":int(data[i].split()[5])})
                     if float(data[i].split()[5])==0:
                         Num_note+=1
                     Num_judgeline.append(int(data[i].split()[1]))
@@ -137,7 +137,7 @@ def pec2json(filePath):
                                 "holdTime":float(data[i].split()[3])*32-float(data[i].split()[2])*32,
                                 "speed":float(data[i+1].split()[1]),
                                 "above":float(data[i].split()[5]),
-                                "isFake":float(data[i].split()[6])})
+                                "isFake":int(data[i].split()[6])})
                     if float(data[i].split()[6])==0:
                         Num_note+=1
                     Num_judgeline.append(int(data[i].split()[1]))
@@ -149,7 +149,7 @@ def pec2json(filePath):
                                 "holdTime":0,
                                 "speed":float(data[i+1].split()[1]),
                                 "above":float(data[i].split()[4]),
-                                "isFake":float(data[i].split()[5])})
+                                "isFake":int(data[i].split()[5])})
                     if float(data[i].split()[5])==0:
                         Num_note+=1
                     Num_judgeline.append(int(data[i].split()[1]))
@@ -161,7 +161,7 @@ def pec2json(filePath):
                                 "holdTime":0,
                                 "speed":float(data[i+1].split()[1]),
                                 "above":float(data[i].split()[4]),
-                                "isFake":float(data[i].split()[5])})
+                                "isFake":int(data[i].split()[5])})
                     if float(data[i].split()[5])==0:
                         Num_note+=1
                     Num_judgeline.append(int(data[i].split()[1]))
@@ -273,24 +273,26 @@ def pec2json(filePath):
             if note_this_line[j]["type"]==3:
                 mult=recent_speed(time,a_line["speedEvents"])
                 speed=speed*mult
-            if note_this_line[j]["isFake"]==1:
-                time+=999999
+            #if note_this_line[j]["isFake"]==1:
+                #time+=999999
             if note_this_line[j]["above"]==1:
                 a_line["notesAbove"].append({"type":tp,
-                                            "time":time,
-                                            "positionX":positionX,
-                                            "holdTime":holdTime,
-                                            "speed":speed,
-                                            "floorPosition":floorPostion,
-                                            "floorPosition2":floorPostion2})
+                                             "isFake":note_this_line[j]["isFake"],
+                                             "time":time,
+                                             "positionX":positionX,
+                                             "holdTime":holdTime,
+                                             "speed":speed,
+                                             "floorPosition":floorPostion,
+                                             "floorPosition2":floorPostion2})
             else:
                 a_line["notesBelow"].append({"type":tp,
-                                            "time":time,
-                                            "positionX":positionX,
-                                            "holdTime":holdTime,
-                                            "speed":speed,
-                                            "floorPosition":floorPostion,
-                                            "floorPosition2":floorPostion2})
+                                             "isFake":note_this_line[j]["isFake"],
+                                             "time":time,
+                                             "positionX":positionX,
+                                             "holdTime":holdTime,
+                                             "speed":speed,
+                                             "floorPosition":floorPostion,
+                                             "floorPosition2":floorPostion2})
         
         time_point=[]
         for j in range(len(move_event)):

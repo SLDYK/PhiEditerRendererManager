@@ -13,6 +13,7 @@ from lib_for_video import holdhead_fix, holdend_fix, speed_fix, score
 from lib_for_video import paste_hold_pos, paste_pos, effect_pos, p4
 from lib_for_video import mkdir, linepos
 from lib_for_audio import audio2wav, PhiAudio, video_add_audio
+from lib_for_json import cut2
 from pec2json import pec2json
 
 def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,HighLight,Blur,noteSize,LineColor,sound_Level):#主程序
@@ -20,6 +21,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     showframe=tkinter.Toplevel()
     showframe.title("Preview(240p)")
     showframe.geometry("400x300")
+    showframe.iconbitmap("Source/R.ico")
     
     var=tkinter.StringVar()
     
@@ -138,22 +140,34 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
         color=color.resize((hit[i].width,hit[i].height))    
         hit[i]=ImageChops.darker(color,hit[i])
         hit[i]=ImageChops.multiply(hit[i],Image.new("RGBA",(hit[i].width,hit[i].height),(230,230,230,255)))
-        hit[i]=hit[i].resize((int(hit[i].width*width/1920*noteSize),int(hit[i].height*width/1920*noteSize)))
+        hit[i]=hit[i].resize((int(hit[i].width*width/1920*noteSize*1.1),int(hit[i].height*width/1920*noteSize*1.1)))
 
-    #粒子距离序列
+    
     particle=[]
-    particle_length=[25.603819159562036,35.90109871423002,43.58898943540673,
-                    49.88876515698588,55.27707983925666,59.999999999999986,
-                    64.20453428086074,67.98692684790379,71.4142842854285,
-                    74.53559924999298,77.38791177495933,80.0,
-                    82.39471396205516,84.59051693633013,86.60254037844386,
-                    88.44332774281067,90.1233722306385,91.6515138991168,
-                    93.03523824635242,94.28090415820634,95.39392014169457,
-                    96.37888196533973,97.23968097209881,97.97958971132712,
-                    98.60132971832694,99.10712498212337,99.498743710662,
-                    99.77753031397178,99.94442900376633,100]
+    particle_length=[]
+    particle_alpha=[]
+    particle_size=[]
+    ease1=18 #粒子位移缓动
+    ease2=15 #粒子透明度缓动
+    ease3=20 #粒子缩放缓动
     for i in range(30):
-        a_particle=Image.new("RGBA",(int(0.5*particle_length[i]*width/1920),int(0.5*particle_length[i]*width/1920)),(223,210,140,int((100-particle_length[i])*2.55)))
+        particle_length.append(cut2(0,100,0,29,0,1,ease1,i))
+    for i in range(30):
+        particle_alpha.append(cut2(0,100,0,29,0,1,ease2,i))
+    for i in range(30):
+        particle_size.append(cut2(0,100,0,29,0,1,ease3,i))
+    #particle_length=[25.603819159562036,35.90109871423002,43.58898943540673,
+     #                49.88876515698588,55.27707983925666,59.999999999999986,
+      #               64.20453428086074,67.98692684790379,71.4142842854285,
+       #              74.53559924999298,77.38791177495933,80.0,
+        #             82.39471396205516,84.59051693633013,86.60254037844386,
+         #            88.44332774281067,90.1233722306385,91.6515138991168,
+          #           93.03523824635242,94.28090415820634,95.39392014169457,
+           #          96.37888196533973,97.23968097209881,97.97958971132712,
+            #         98.60132971832694,99.10712498212337,99.498743710662,
+             #        99.77753031397178,99.94442900376633,100]
+    for i in range(30):
+        a_particle=Image.new("RGBA",(int(0.5*particle_size[i]*width/1920),int(0.5*particle_size[i]*width/1920)),(223,210,140,int((100-particle_alpha[i])*1.7)))
         particle.append(a_particle)
         
     rotgroup=[]
@@ -227,9 +241,11 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
             if chart["judgeLineList"][i]["notesBelow"][j]['type']==3:
                 chart["judgeLineList"][i]["notesBelow"][j]['speed']=speed_fix(chart["judgeLineList"][i]["notesBelow"][j],
                                                                             chart["judgeLineList"][i]["speedEvents"])
-            notelist.append(chart["judgeLineList"][i]["notesBelow"][j])
-            hittimelist.append(chart["judgeLineList"][i]["notesBelow"][j]["time"])
-            hitsoundlist.append((chart["judgeLineList"][i]["notesBelow"][j]["time"], chart["judgeLineList"][i]["notesBelow"][j]["type"]))
+            
+            if chart["judgeLineList"][i]["notesBelow"][j]["isFake"] != 1:
+                notelist.append(chart["judgeLineList"][i]["notesBelow"][j])
+                hittimelist.append(chart["judgeLineList"][i]["notesBelow"][j]["time"])
+                hitsoundlist.append((chart["judgeLineList"][i]["notesBelow"][j]["time"], chart["judgeLineList"][i]["notesBelow"][j]["type"]))
         for j in range(0,len(chart["judgeLineList"][i]["notesAbove"])):
             chart["judgeLineList"][i]["notesAbove"][j].update({'HL':False})
             chart["judgeLineList"][i]["notesAbove"][j].update({'Above':True})
@@ -242,9 +258,11 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                 chart["judgeLineList"][i]["notesAbove"][j]['speed']=speed_fix(chart["judgeLineList"][i]["notesAbove"][j],
                                                                             chart["judgeLineList"][i]["speedEvents"])
 
-            notelist.append(chart["judgeLineList"][i]["notesAbove"][j])
-            hittimelist.append(chart["judgeLineList"][i]["notesAbove"][j]["time"])
-            hitsoundlist.append((chart["judgeLineList"][i]["notesAbove"][j]["time"], chart["judgeLineList"][i]["notesAbove"][j]["type"]))
+            
+            if chart["judgeLineList"][i]["notesAbove"][j]["isFake"] != 1:
+                notelist.append(chart["judgeLineList"][i]["notesAbove"][j])
+                hittimelist.append(chart["judgeLineList"][i]["notesAbove"][j]["time"])
+                hitsoundlist.append((chart["judgeLineList"][i]["notesAbove"][j]["time"], chart["judgeLineList"][i]["notesAbove"][j]["type"]))
             
     for i in range(len(hittimelist)):
         if hittimelist.count(hittimelist[i])!=1:
@@ -257,30 +275,34 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                 effect_time=range(int(b_hold['time']),int(b_hold['time']+b_hold['holdTime']),16)
                 for k in effect_time:
                     a_effect={'type': 5,
-                            'time': k,
-                            'positionX': b_hold['positionX'],
-                            'holdTime': 0,
-                            'speed': -1.0,
-                            'floorPosition': -100,
-                            'Above': True,
-                            'floorPosition2': -100}
-                    chart["judgeLineList"][i]["notesAbove"].append(a_effect)
-                    notelist.append(a_effect)
+                              'isFake': b_hold['isFake'],
+                              'time': k,
+                              'positionX': b_hold['positionX'],
+                              'holdTime': 0,
+                              'speed': -1.0,
+                              'floorPosition': -100,
+                              'Above': True,
+                              'floorPosition2': -100}
+                    if b_hold['isFake'] != 1:
+                        chart["judgeLineList"][i]["notesAbove"].append(a_effect)
+                        notelist.append(a_effect)
         for j in range(0,len(chart["judgeLineList"][i]["notesBelow"])):
             if chart["judgeLineList"][i]["notesBelow"][j]['type']==3:
                 b_hold=chart["judgeLineList"][i]["notesBelow"][j]
                 effect_time=range(int(b_hold['time']),int(b_hold['time']+b_hold['holdTime']),16)
                 for k in effect_time:
                     a_effect={'type': 5,
-                            'time': k,
-                            'positionX': b_hold['positionX'],
-                            'holdTime': 0,
-                            'speed': -1.0,
-                            'floorPosition': -100,
-                            'Above': True,
-                            'floorPosition2': -100}
-                    chart["judgeLineList"][i]["notesBelow"].append(a_effect)
-                    notelist.append(a_effect)
+                              'isFake': b_hold['isFake'],
+                              'time': k,
+                              'positionX': b_hold['positionX'],
+                              'holdTime': 0,
+                              'speed': -1.0,
+                              'floorPosition': -100,
+                              'Above': True,
+                              'floorPosition2': -100}
+                    if b_hold['isFake'] != 1:
+                        chart["judgeLineList"][i]["notesBelow"].append(a_effect)
+                        notelist.append(a_effect)
                     
     combo_frame=[]
     for i in range(len(notelist)):
@@ -288,7 +310,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
         PX=notelist[i]['positionX']*width/1920
         notelist[i].update({'positionX':PX})
         notelist[i].update({'hitFrame':b2f(notelist[i]['time'],fps,BarPerMinute)})
-        if notelist[i]['type']!=5:
+        if notelist[i]['type']!=5 and notelist[i]['isFake']!=1:
             combo_frame.append(b2f(notelist[i]['time']+notelist[i]['holdTime'],fps,BarPerMinute))
 
     #计算总帧数
@@ -367,7 +389,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                     chart["judgeLineList"][k]["judgeLineDisappearEvents"].pop(0)
             if alpha!=0:
                 if LineColor:
-                    aline=Image.new("RGBA",(linelength,linehight),(237,236,167,int(alpha*255)))
+                    aline=Image.new("RGBA",(linelength,linehight),(237,236,176,int(alpha*255)))
                 else:
                     aline=Image.new("RGBA",(linelength,linehight),(255,255,255,int(alpha*255)))
                 aline=aline.rotate(rotate, expand=True)
@@ -383,9 +405,11 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
             floor_range=present_floor(beat,chart["judgeLineList"][k]["speedEvents"],BarPerMinute)
             
             for j in range(len(chart["judgeLineList"][k]["notesAbove"])):
-                if i-chart["judgeLineList"][k]["notesAbove"][j]['hitFrame']<30*fps/60 and i-chart["judgeLineList"][k]["notesAbove"][j]['hitFrame']>=0:
-                    effect_this_frame.append(chart["judgeLineList"][k]["notesAbove"][j])
-            
+                try:
+                    if i-chart["judgeLineList"][k]["notesAbove"][j]['hitFrame']<30*fps/60 and i-chart["judgeLineList"][k]["notesAbove"][j]['hitFrame']>=0:
+                        effect_this_frame.append(chart["judgeLineList"][k]["notesAbove"][j])
+                except:
+                    pass
             for j in range(len(chart["judgeLineList"][k]["notesAbove"])):
                 f=chart["judgeLineList"][k]["notesAbove"][j]["floorPosition"]
                 f2=chart["judgeLineList"][k]["notesAbove"][j]["floorPosition2"]
@@ -402,7 +426,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                         hold_this_frame.append(chart["judgeLineList"][k]["notesAbove"][j])
                     elif chart["judgeLineList"][k]["notesAbove"][j]["type"]!=5:
                         note_this_frame.append(chart["judgeLineList"][k]["notesAbove"][j])
-                elif i-chart["judgeLineList"][k]["notesAbove"][j]['hitFrame']>30*fps/60:
+                elif i-chart["judgeLineList"][k]["notesAbove"][j]['time']>30*fps/60:
                     chart["judgeLineList"][k]["notesAbove"].pop(j)
                     chart["judgeLineList"][k]["notesAbove"].insert(j,"delete")
                 elif hittime-beat<4 and hittime-beat>=0:
@@ -413,9 +437,11 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                 chart["judgeLineList"][k]["notesAbove"].remove("delete")
             
             for j in range(len(chart["judgeLineList"][k]["notesBelow"])):
-                if i-chart["judgeLineList"][k]["notesBelow"][j]['hitFrame']<30*fps/60 and i-chart["judgeLineList"][k]["notesBelow"][j]['hitFrame']>=0:
-                    effect_this_frame.append(chart["judgeLineList"][k]["notesBelow"][j])
-            
+                try:
+                    if i-chart["judgeLineList"][k]["notesBelow"][j]['hitFrame']<30*fps/60 and i-chart["judgeLineList"][k]["notesBelow"][j]['hitFrame']>=0:
+                        effect_this_frame.append(chart["judgeLineList"][k]["notesBelow"][j])
+                except:
+                    pass
             for j in range(len(chart["judgeLineList"][k]["notesBelow"])):
                 f=chart["judgeLineList"][k]["notesBelow"][j]["floorPosition"]
                 f2=chart["judgeLineList"][k]["notesBelow"][j]["floorPosition2"]
@@ -498,7 +524,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                     frame.paste(a_flick,pos,a_flick)
                     
         for k in range(len(effect_this_frame)):
-            if effect_this_frame[k]['type']!=3:    
+            if effect_this_frame[k]['type'] != 3:    
                 posXY=effect_pos(frame,effect_this_frame[k])
                 pos=(int(posXY[0]-0.5*hit[int((i-effect_this_frame[k]['hitFrame'])*60/fps)].width),int(posXY[1]-0.5*hit[int((i-effect_this_frame[k]['hitFrame'])*60/fps)].height))
                 frame.paste(hit[int((i-effect_this_frame[k]['hitFrame'])*60/fps)],pos,hit[int((i-effect_this_frame[k]['hitFrame'])*60/fps)])
