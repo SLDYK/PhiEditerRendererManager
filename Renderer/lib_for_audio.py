@@ -2,15 +2,18 @@
 import os
 from pydub import AudioSegment
 from lib_for_video import beat2msec
-from FFM import FFmpeg
+import FFM as ffmpy
+#from ffmpeg_progress_yield import FfmpegProgress
+import tkinter
+import subprocess
  
 cur_path = os.path.dirname(__file__)
 
-def audio2wav(path: str):
+def audio2wav(path: str,songName):
     extension = os.path.splitext(path)[1].replace(".","")
     audio = AudioSegment.from_file(path, format=extension)
     # 保存为 WAV 格式
-    export_path ="tmp/music.wav"
+    export_path ="tmp/"+songName+" tmp_1.wav"
     audio.export(export_path, format="wav")
     
 def PhiAudio(audioPath, hitsoundlist, bpm, hitsoundoffset, musicoffset, length,var,showframe,sound_Level):
@@ -41,7 +44,7 @@ def PhiAudio(audioPath, hitsoundlist, bpm, hitsoundoffset, musicoffset, length,v
         output = output.overlay(sound, position=beat2msec(currentBeat, bpm, hitsoundoffset))
     
     print("音频生成成功")
-    export_path ="tmp/hitsound.wav"
+    export_path = audioPath[0:-5]+"2.wav"
 
     output.export(export_path, format="wav")  # 保存文件
 
@@ -54,8 +57,26 @@ def video_add_audio(video_path: str, audio_path: str, output_dir: str, videoname
     if _ext_audio == 'wav':
         _codec = 'aac'
     result = os.path.join(output_dir, videoname)
-    ff = FFmpeg(
+    ff = ffmpy.FFmpeg(
         inputs={video_path: None, audio_path: None},
         outputs={result: '-map 0:v -map 1:a -c:v copy -c:a {} -y'.format(_codec)})
     ff.run()
     return result
+#def video_add_audio(video_path: str, audio_path: str, output_dir: str, videoname: str, progress_var: tkinter.StringVar):
+
+#    _ext_audio = os.path.basename(audio_path).strip().split('.')[-1]
+#    if _ext_audio not in ['mp3', 'wav']:
+#        raise Exception('audio format not support')
+#    _codec = 'copy'
+#    if _ext_audio == 'wav':
+#        _codec = 'aac'
+#    result = os.path.join(output_dir, videoname)
+#    
+#    ff = FfmpegProgress(
+#        inputs={video_path: None, audio_path: None},
+#        outputs={result: '-map 0:v -map 1:a -c:v copy -c:a {} -y'.format(_codec)})
+#    
+#    for progress in ff.run_command_with_progress():
+#        progress_var.set(progress)
+    
+#    return result

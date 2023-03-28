@@ -1,59 +1,32 @@
 # -*- coding: utf-8 -*-
 from tkinter import filedialog
 from tkinter import ttk
-from tkinter import messagebox
 import traceback
 import tkinter
 from video_maker import start_rendering
 from pec2json import chartify
 import os
 import sys
+import random
 
 def renderer(item):
     
     def init():#谱面基本信息框
-        
+    
         def infoed():#点击“下一步”后执行
         
             try:#检查数据可用性
             #if True:
-                if enName.get()=="":
-                    raise TypeError("input error")
-                else:
-                    name=enName.get()
-                    
-                if enLevel.get()=="":
-                    raise TypeError("input error")
-                else:
-                    level=enLevel.get()
-                    
-                if enSpecs.get()=="":
-                    raise TypeError("input error")
-                else:
-                    specs=enSpecs.get()
-                    width=int(specs.split()[0].split("x")[0])
-                    hight=int(specs.split()[0].split("x")[1])
-                    fps=int(specs.split()[2].replace("fps",""))
-                    
-                if enChartPath.get()=="":
-                    raise TypeError("input error")
-                else:
-                    chart=enChartPath.get()
-                    
-                if enPicturePath.get()=="":
-                    raise TypeError("input error")
-                else:
-                    picture=enPicturePath.get()
-                    
-                if enSongPath.get()=="":
-                    raise TypeError("input error")
-                else:
-                    song=enSongPath.get()
-                    
-                if enBlur.get()=="":
-                    raise TypeError("input error")
-                else:
-                    blur=int(enBlur.get().split()[0])
+                name=enName.get()
+                level=enLevel.get()
+                specs=enSpecs.get()
+                width=int(specs.split()[0].split("x")[0])
+                hight=int(specs.split()[0].split("x")[1])
+                fps=int(specs.split()[2].replace("fps",""))
+                chart=enChartPath.get()
+                picture=enPicturePath.get()
+                song=enSongPath.get()
+                blur=int(enBlur.get().split()[0])
                     
                 if enHighLight.get()=="开启":
                     Highlight=True
@@ -65,19 +38,19 @@ def renderer(item):
                 else:
                     LineColor=False
                     
-                if enNoteSize.get()=="":
-                    raise TypeError("input error")
-                else:
-                    notesize=float(enNoteSize.get().split()[0])
+                notesize=float(enNoteSize.get().split()[0])
+                sound_Level=float(enSound.get().split()[0])
+                AST=enStartAnimation.get()
+                AET=enEndAnimation.get()
                 
-                if enSound.get()=="":
-                    raise TypeError("input error")
-                else:
-                    sound_Level=float(enSound.get().split()[0])
+                Superior_Data=[AST,AET,enPlayerName.get(),enComboText.get(),
+                               enUserIcon.get(),enVideoBackground.get(),enAPS.get()]
                 
-                setinfo.destroy()
                 
-                start_rendering(name,level,width,hight,fps,chart,picture,song,Highlight,blur,notesize,LineColor,sound_Level)
+                base.destroy()
+                
+                start_rendering(name,level,width,hight,fps,chart,picture,song,Highlight,blur,notesize,LineColor,sound_Level,Superior_Data)
+                
                 
             except :#不可用则报错
                 with open("ErrorsLog.txt","a",encoding="utf_8") as t:
@@ -85,15 +58,33 @@ def renderer(item):
                     t.close()
                 
         def Select(var):#文件选择框
-            if var==Select1:
+            if var==1:
                 filePath=filedialog.askopenfilename(filetypes=[('谱面文件','.json .pec')])
+                enChartPath.delete(0, 'end')
                 enChartPath.insert(0,filePath)
-            elif var==Select2:
+            elif var==2:
                 filePath=filedialog.askopenfilename(filetypes=[('图片文件','.jpg .png')])
+                enPicturePath.delete(0, 'end')
                 enPicturePath.insert(0,filePath)
-            else:
+            elif var==3:
                 filePath=filedialog.askopenfilename(filetypes=[('音频文件','.mp3 .wav .m4a .ogg .aac')])
+                enSongPath.delete(0, 'end')
                 enSongPath.insert(0,filePath)
+            elif var==4:
+                filePath=filedialog.askopenfilename(filetypes=[('图片文件','.jpg .png')])
+                enUserIcon.delete(0, 'end')
+                enUserIcon.insert(0,filePath)
+            elif var==5:
+                filePath=filedialog.askopenfilename(filetypes=[('视频文件','.mp4 .avi .mkv .flv .rmvb')])
+                enVideoBackground.delete(0, 'end')
+                enVideoBackground.insert(0,filePath)
+            elif var=="Rand":
+                with open("Source/Tips.txt","r",encoding="utf_8") as t:
+                    Tips=t.readlines()
+                    enTip.delete(0, 'end')
+                    a_Tip=Tips[random.randint(0,len(Tips)-1)]
+                    enTip.insert(0,a_Tip)
+                    t.close()
         
         try:
             with open("PEdata","r",encoding="utf_8") as p:
@@ -102,30 +93,40 @@ def renderer(item):
         except:
             pass    
         
-        setinfo=tkinter.Toplevel()
-        setinfo.title("Settings")
-        setinfo.iconbitmap("Source/R.ico")
-        setinfo.geometry("600x420")
-        subtitle=tkinter.Label(setinfo,text="设置视频信息",font=('',12),width=30,height=1)
+        base=tkinter.Tk()
+        base.title("Settings")
+        base.iconbitmap("Source/R.ico")
+        base.geometry("600x425")
+        
+        notebook = ttk.Notebook(base)
+        setinfo = tkinter.Frame(base)
+        subtitle=tkinter.Label(setinfo,text="基本视频设置",font=('',12),width=30,height=1)
         subtitle.place(x=300,y=30,anchor=tkinter.CENTER)
+        
+        Var1=tkinter.StringVar(base)
+        Var2=tkinter.StringVar(base)
+        Var3=tkinter.StringVar(base)
+        Var4=tkinter.StringVar(base)
+        Var5=tkinter.StringVar(base)
         
         Name=tkinter.Label(setinfo, text='曲名:',font=('',10),width=10,height=1)
         Name.place(x=100,y=80,anchor="e")
-        enName=tkinter.Entry(setinfo,show=None,width=22)
+        enName=tkinter.Entry(setinfo,show=None,width=23)
         enName.insert(0,"")
         enName.place(x=100,y=80,anchor="w")
         
         Level=tkinter.Label(setinfo,text='等级:',font=('',10),width=10,height=1)
         Level.place(x=100,y=130,anchor="e")
-        enLevel=tkinter.Entry(setinfo,show=None,width=22)
+        enLevel=tkinter.Entry(setinfo,show=None,width=23)
         enLevel.insert(0,"")
         enLevel.place(x=100,y=130,anchor="w")
         
         Specs=tkinter.Label(setinfo,text='规格:',font=('',10),width=10,height=1)
         Specs.place(x=100,y=180,anchor="e")
-        var1=tkinter.StringVar()
-        var1.set("1920x1080 16:9 60fps")
-        enSpecs=ttk.Combobox(setinfo,width=20,textvariable=var1,state="readonly")
+        
+        Var1.set("1920x1080 16:9 60fps")
+        
+        enSpecs=ttk.Combobox(setinfo,width=20,textvariable=Var1,state="readonly")
         enSpecs['values']=("1920x1080 16:9 60fps",
                            "1440x1080 4:3  60fps",
                            "1580x1080 PE   60fps",
@@ -146,7 +147,7 @@ def renderer(item):
         enChartPath.insert(0,"")
         enChartPath.place(x=100,y=230,anchor="w")
         Select1=tkinter.Button(setinfo,text='选择谱面',font=('',10),width=15,height=1,
-                            command=lambda:Select(Select1))
+                            command=lambda:Select(1))
         Select1.place(x=560,y=230,anchor="e")
         
         PicturePath=tkinter.Label(setinfo,text='曲绘文件:',font=('',10),width=10,height=1)
@@ -155,7 +156,7 @@ def renderer(item):
         enPicturePath.insert(0,"")
         enPicturePath.place(x=100,y=280,anchor="w")
         Select2=tkinter.Button(setinfo,text='选择曲绘',font=('',10),width=15,height=1,
-                            command=lambda:Select(Select2))
+                            command=lambda:Select(2))
         Select2.place(x=560,y=280,anchor="e")
         
         SongPath=tkinter.Label(setinfo,text='音频文件:',font=('',10),width=10,height=1)
@@ -164,23 +165,25 @@ def renderer(item):
         enSongPath.insert(0,"")
         enSongPath.place(x=100,y=330,anchor="w")
         Select3=tkinter.Button(setinfo,text='选择音频',font=('',10),width=15,height=1,
-                            command=lambda:Select(Select3))
+                            command=lambda:Select(3))
         Select3.place(x=560,y=330,anchor="e")
         
         HighLight=tkinter.Label(setinfo, text='双押高亮:',font=('',10),width=10,height=1)
         HighLight.place(x=350,y=80,anchor="e")
-        var2=tkinter.StringVar()
-        var2.set("开启")
-        enHighLight=ttk.Combobox(setinfo,width=5,textvariable=var2,state="readonly")
+        
+        Var2.set("开启")
+        
+        enHighLight=ttk.Combobox(setinfo,width=5,textvariable=Var2,state="readonly")
         enHighLight['values']=("开启",
                           "关闭")
         enHighLight.place(x=350,y=80,anchor="w")
         
         LineColor=tkinter.Label(setinfo, text='判定线颜色:',font=('',10),width=10,height=1)
         LineColor.place(x=490,y=80,anchor="e")
-        var3=tkinter.StringVar()
-        var3.set("黄")
-        enLineColor=ttk.Combobox(setinfo,width=5,textvariable=var3,state="readonly")
+        
+        Var3.set("黄")
+        
+        enLineColor=ttk.Combobox(setinfo,width=5,textvariable=Var3,state="readonly")
         enLineColor['values']=("黄",
                           "白")
         enLineColor.place(x=490,y=80,anchor="w")
@@ -191,9 +194,9 @@ def renderer(item):
         enNoteSize.insert(0,"1.4 #推荐")
         enNoteSize.place(x=350,y=130,anchor="w")
         
-        Blur=tkinter.Label(setinfo, text='背景模糊度:',font=('',10),width=10,height=1)
+        Blur=tkinter.Label(setinfo, text='曲绘模糊:',font=('',10),width=10,height=1)
         Blur.place(x=350,y=180,anchor="e")
-        enBlur=tkinter.Entry(setinfo,show=None,width=22)
+        enBlur=tkinter.Entry(setinfo,show=None,width=23)
         enBlur.insert(0,"70 #推荐")
         enBlur.place(x=350,y=180,anchor="w")
         
@@ -203,16 +206,98 @@ def renderer(item):
         enSound.insert(0,"35 #默认")
         enSound.place(x=490,y=130,anchor="w")
         
-        var4=tkinter.StringVar()#高级设置预留位
-        var4.set("")
-        
-        Advanced=tkinter.Button(setinfo,text='高级设置',font=('',10),width=22,height=1,
-                            command=lambda:messagebox.showinfo("Sorry","Coming Soon"))
-        Advanced.place(x=180,y=380,anchor=tkinter.CENTER)
-        
         done=tkinter.Button(setinfo,text='下一步',font=('',10),width=22,height=1,
                             command=lambda:infoed())
-        done.place(x=420,y=380,anchor=tkinter.CENTER)
+        done.place(x=300,y=370,anchor=tkinter.CENTER)
+        
+        superior = tkinter.Frame(base)
+        
+        subtitle2=tkinter.Label(superior,text="高级视频设置",font=('',12),width=30,height=1)
+        subtitle2.place(x=300,y=30,anchor=tkinter.CENTER)
+        
+        StartAnimation=tkinter.Label(superior, text='开场动画:',font=('',10),width=10,height=1)
+        StartAnimation.place(x=100,y=80,anchor="e")
+        
+        Var4.set("5s #推荐")
+        
+        enStartAnimation=ttk.Combobox(superior,width=20,textvariable=Var4,state="readonly")
+        enStartAnimation['values']=("禁用","5s #推荐")
+        enStartAnimation.place(x=100,y=80,anchor="w")
+        
+        EndAnimation=tkinter.Label(superior, text='结算动画:',font=('',10),width=10,height=1)
+        EndAnimation.place(x=100,y=130,anchor="e")
+        
+        
+        Var5.set("10s #推荐")
+        
+        enEndAnimation=ttk.Combobox(superior,width=20,textvariable=Var5,state="readonly")
+        enEndAnimation['values']=("禁用","10s #推荐")
+        enEndAnimation.place(x=100,y=130,anchor="w")
+        
+        PlayerName=tkinter.Label(superior, text='玩家名称:',font=('',10),width=10,height=1)
+        PlayerName.place(x=350,y=180,anchor="e")
+        
+        enPlayerName=tkinter.Entry(superior,show=None,width=23)
+        enPlayerName.insert(0,"GUEST")
+        enPlayerName.place(x=350,y=180,anchor="w")
+        
+        ComboText=tkinter.Label(superior, text='连击字段:',font=('',10),width=10,height=1)
+        ComboText.place(x=100,y=180,anchor="e")
+        
+        enComboText=tkinter.Entry(superior,show=None,width=23)
+        enComboText.insert(0,"COMBO")
+        enComboText.place(x=100,y=180,anchor="w")
+        
+        APS=tkinter.Label(superior, text='理论值:',font=('',10),width=10,height=1)
+        APS.place(x=350,y=130,anchor="e")
+        
+        enAPS=tkinter.Entry(superior,show=None,width=23)
+        enAPS.insert(0,"1000000")
+        enAPS.place(x=350,y=130,anchor="w")
+        
+        Tip=tkinter.Label(superior, text='Tip字段:',font=('',10),width=10,height=1)
+        Tip.place(x=100,y=230,anchor="e")
+                
+        enTip=tkinter.Entry(superior,show=None,width=46)
+        enTip.insert(0,"")
+        enTip.place(x=100,y=230,anchor="w")
+        
+        Rand=tkinter.Button(superior,text='随机填充',font=('',10),width=15,height=1,
+                            command=lambda:Select("Rand"))
+        Rand.place(x=560,y=230,anchor="e")
+        
+        Select("Rand")
+        
+        UserIcon=tkinter.Label(superior, text='玩家头像:',font=('',10),width=10,height=1)
+        UserIcon.place(x=100,y=280,anchor="e")
+        
+        enUserIcon=tkinter.Entry(superior,show=None,width=46)
+        enUserIcon.insert(0,"Source/UserIcon.png")
+        enUserIcon.place(x=100,y=280,anchor="w")
+        
+        Select4=tkinter.Button(superior,text='选择图片',font=('',10),width=15,height=1,
+                            command=lambda:Select(4))
+        Select4.place(x=560,y=280,anchor="e")
+        
+        VideoBackground=tkinter.Label(superior, text='视频背景:',font=('',10),width=10,height=1)
+        VideoBackground.place(x=100,y=330,anchor="e")
+        
+        enVideoBackground=tkinter.Entry(superior,show=None,width=46)
+        enVideoBackground.insert(0,"Disabled(不启用)")
+        enVideoBackground.place(x=100,y=330,anchor="w")
+        
+        Select5=tkinter.Button(superior,text='选择视频',font=('',10),width=15,height=1,
+                            command=lambda:Select(5))
+        Select5.place(x=560,y=330,anchor="e")
+        
+        done2=tkinter.Button(superior,text='下一步',font=('',10),width=22,height=1,
+                            command=lambda:infoed())
+        done2.place(x=300,y=370,anchor=tkinter.CENTER)
+        
+        notebook.add(setinfo, text="基本视频信息")
+        notebook.add(superior, text="高级视频信息")
+        notebook.pack()
+        notebook.configure(width=600, height=400)
         
         if item == "":
             pass
@@ -223,10 +308,11 @@ def renderer(item):
             enPicturePath.insert(0,PEdata+"Resources/"+item[2])
             enSongPath.insert(0,PEdata+"Resources/"+item[1])
         
-        setinfo.mainloop()
+        base.mainloop()
     
     init()
-if __name__ == "__main__":
+    
+if __name__ == "__main__":  
     Path = os.path.dirname(os.path.abspath(sys.argv[0]))
     os.chdir(Path)
     root=tkinter.Tk()

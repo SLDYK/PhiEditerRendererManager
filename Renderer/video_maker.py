@@ -3,30 +3,45 @@ import json
 import contextlib
 import wave
 import cv2
+import os
 import numpy
 import random
 import tkinter
 from tkinter import messagebox
-from PIL import Image, ImageChops, ImageDraw, ImageFont, ImageTk
+from PIL import Image, ImageChops, ImageDraw, ImageFont, ImageTk, ImageEnhance
 from lib_for_video import Trim, f2b, b2f, cut, present_floor, end_floor
 from lib_for_video import holdhead_fix, holdend_fix, speed_fix, score
 from lib_for_video import paste_hold_pos, paste_pos, effect_pos, p4
-from lib_for_video import mkdir, linepos
+from lib_for_video import mkdir, linepos, process_video
 from lib_for_audio import audio2wav, PhiAudio, video_add_audio
 from lib_for_json import cut2
 from pec2json import pec2json
+import Animation
 
-def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,HighLight,Blur,noteSize,LineColor,sound_Level):#主程序
+def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,HighLight,Blur,
+                    noteSize,LineColor,sound_Level,Superior_Data):#主程序
     
     showframe=tkinter.Toplevel()
     showframe.title("Preview(240p)")
     showframe.geometry("400x300")
     showframe.iconbitmap("Source/R.ico")
     
+    
     var=tkinter.StringVar()
+    rand_id=random.randint(100000000,695269639)
     
     pace=tkinter.Label(showframe, textvariable=var,font=('', 10),width=300, height=5)
     pace.place(x=200,y=40,anchor=tkinter.CENTER)
+    #生成随机id，防止tmp文件夹互相覆盖
+    
+    
+    Back_Video_Path=Superior_Data[5]
+    BV=False
+    
+    Combo_text=Superior_Data[3]
+    
+    
+    
     var.set("正在转换音频格式")
     showframe.update()
     
@@ -37,10 +52,10 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     
     
     mkdir("tmp")
-    audio2wav(audioPath)
+    audio2wav(audioPath,str(rand_id))
     showframe.update()
 
-    audioPath ="tmp/music.wav"
+    audioPath ="tmp/"+str(rand_id)+" tmp_1.wav"
     
     with contextlib.closing(wave.open(audioPath, 'r')) as f:
         frames = f.getnframes()
@@ -57,19 +72,12 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     combo_font1 = ImageFont.truetype(fontpath, int(72 * height / 1080))
     combo_font2 = ImageFont.truetype(fontpath, int(26 * height / 1080))
     score_font = ImageFont.truetype(fontpath, int(55 * height / 1080))
-
-    draw = ImageDraw.Draw(background)
-    title = text_font.getsize(songName)
-    draw.text((int(41 * height / 1080), int(background.height - 39 * height / 1080 - title[1])), songName, font=text_font, fill=(255,255,255))
-    title = text_font.getsize(level)
-    draw.text((int(background.width - 41 * height / 1080 - title[0]), int(background.height - 39 * height / 1080 - title[1])), level, font=text_font, fill=(255,255,255))
-    title = combo_font2.getsize("COMBO")
-
-    pause = Image.open("Source/Pause.png").convert("RGBA")
-    pause = pause.resize((int(pause.width * height / 1080), int(pause.height * height / 1080)))
-    background.paste(pause, (int(60 * height / 1920), int(40 * height / 1080)), mask = pause)
-    del draw
     
+    Level_title = text_font.getsize(level)
+    Song_title = text_font.getsize(songName)
+    title = combo_font2.getsize(Combo_text)
+    
+    pause = Image.open("Source/Pause.png").convert("RGBA")
     ProgressBar=Image.open("Source/ProgressBar.png").convert("RGBA")
     ProgressBar=ProgressBar.resize((int(ProgressBar.width * width/1920), int(ProgressBar.height * width/1920)))
     tap=Image.open("Source/Tap.png").convert("RGBA")
@@ -140,7 +148,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
         color=color.resize((hit[i].width,hit[i].height))    
         hit[i]=ImageChops.darker(color,hit[i])
         hit[i]=ImageChops.multiply(hit[i],Image.new("RGBA",(hit[i].width,hit[i].height),(230,230,230,255)))
-        hit[i]=hit[i].resize((int(hit[i].width*width/1920*noteSize*1.1),int(hit[i].height*width/1920*noteSize*1.1)))
+        hit[i]=hit[i].resize((int(hit[i].width*width/1920*noteSize*1.2),int(hit[i].height*width/1920*noteSize*1.2)))
 
     
     particle=[]
@@ -151,11 +159,11 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     ease2=15 #粒子透明度缓动
     ease3=20 #粒子缩放缓动
     for i in range(30):
-        particle_length.append(cut2(0,100,0,29,0,1,ease1,i))
+        particle_length.append(cut2(0,110,0,29,0,1,ease1,i))
     for i in range(30):
         particle_alpha.append(cut2(0,100,0,29,0,1,ease2,i))
     for i in range(30):
-        particle_size.append(cut2(0,100,0,29,0,1,ease3,i))
+        particle_size.append(cut2(0,80,0,29,0,1,ease3,i))
     #particle_length=[25.603819159562036,35.90109871423002,43.58898943540673,
      #                49.88876515698588,55.27707983925666,59.999999999999986,
       #               64.20453428086074,67.98692684790379,71.4142842854285,
@@ -167,7 +175,9 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
             #         98.60132971832694,99.10712498212337,99.498743710662,
              #        99.77753031397178,99.94442900376633,100]
     for i in range(30):
-        a_particle=Image.new("RGBA",(int(0.5*particle_size[i]*1.1*width/1920),int(0.5*particle_size[i]*1.1*width/1920)),(223,210,140,int((100-particle_alpha[i])*1.7)))
+        a_particle=Image.new("RGBA",(int(0.5*particle_size[i]*1.1*width/1920),
+                                     int(0.5*particle_size[i]*1.1*width/1920)),
+                             (223,210,140,int((100-particle_alpha[i])*1.7)))
         particle.append(a_particle)
         
     rotgroup=[]
@@ -315,7 +325,8 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
 
     #计算总帧数
 
-    totalpaint=int(length*fps)
+    #totalpaint=int(length*fps)
+    
     # fourcc=cv2.VideoWriter_fourcc(*'XVID')
     # videowrite=cv2.VideoWriter(savePath,fourcc,fps,size)
     # mkdir("temp")
@@ -324,7 +335,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     score_this_frame = 0
     totalcombo = chart['numOfNotes']
 
-    vidpath = "tmp/export.avi"
+    vidpath = "tmp/"+str(rand_id)+" export_1.avi"
     fourcc=cv2.VideoWriter_fourcc(*'XVID')
     videowrite=cv2.VideoWriter(vidpath, fourcc, fps, size)
     
@@ -332,22 +343,50 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     view=tkinter.Label(showframe,image=photo)
     view.place(x=200,y=175,anchor=tkinter.CENTER)
     
-    
-    
     musicoffset = chart["offset"] * 1000
     PhiAudio(audioPath, hitsoundlist, BarPerMinute, hitsoundoffset, musicoffset, length, var,showframe,sound_Level)
     
+    if Back_Video_Path != "Disabled(不启用)":
+        var.set("背景视频预处理")
+        showframe.update()
+        Background_Video_Path="tmp/"+str(rand_id)+" export_2.avi"
+        resolution=str(width)+"x"+str(height)
+        print(Back_Video_Path, Background_Video_Path, str(fps), resolution)
+        process_video(Back_Video_Path, Background_Video_Path, str(fps), resolution,var,showframe)
+        cap = cv2.VideoCapture(Background_Video_Path)
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        
+        BV=True
+    
+    if BV:
+        totalpaint=frame_count
+    else:
+        totalpaint=int(length*fps)
+    
+    APS=int(Superior_Data[6])
+    
+    print(combo_this_frame, totalcombo,APS)
+    
     print(totalpaint)
     for i in range(totalpaint):
+        
+        if BV:
+            cap.set(cv2.CAP_PROP_POS_FRAMES, i)
+            ret, vframe = cap.read()
+            cv_image = cv2.cvtColor(vframe, cv2.COLOR_BGR2RGB)
+            # 将NumPy数组转换为PIL Image对象
+            frame = ImageEnhance.Brightness(Image.fromarray(cv_image)).enhance(0.55)
+        else:
+            frame=background.copy()
         
         var.set("渲染帧数："+str(i)+"/"+str(totalpaint)+"  进度百分比："+str(round(100*i/totalpaint,2))+"%")
         while i in combo_frame:  
             combo_this_frame += 1
             combo_frame.remove(i)
         
-        score_this_frame = score(combo_this_frame, totalcombo)
+        score_this_frame = score(combo_this_frame, totalcombo,APS)
         beat = f2b(i, fps, BarPerMinute)
-        frame = background.copy()
+        #frame = background.copy()
         #把分数渲染移到了最后 防止判定线遮挡UI
 
         note_this_frame=[]
@@ -397,9 +436,6 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                 yp=int((1-liney)*background.height)
                 (xp,yp,x,y)=linepos(height,width,rotate,xp,yp,aline)
                 
-                #draw = ImageDraw.Draw(frame)
-                #draw.rectangle((x-25,y-25,x+25,y+25),outline="white",width=10)
-                #del draw
                 frame.paste(aline,(xp,yp),aline)
                 
             floor_range=present_floor(beat,chart["judgeLineList"][k]["speedEvents"],BarPerMinute)
@@ -409,11 +445,17 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                     if i-chart["judgeLineList"][k]["notesAbove"][j]['hitFrame']<30*fps/60 and i-chart["judgeLineList"][k]["notesAbove"][j]['hitFrame']>=0:
                         effect_this_frame.append(chart["judgeLineList"][k]["notesAbove"][j])
                 except:
-                    pass
+                    chart["judgeLineList"][k]["notesAbove"].pop(j)
+                    chart["judgeLineList"][k]["notesAbove"].insert(j,"delete")
+                    
+            while "delete" in chart["judgeLineList"][k]["notesAbove"]:
+                chart["judgeLineList"][k]["notesAbove"].remove("delete")
+                
             for j in range(len(chart["judgeLineList"][k]["notesAbove"])):
                 f=chart["judgeLineList"][k]["notesAbove"][j]["floorPosition"]
                 f2=chart["judgeLineList"][k]["notesAbove"][j]["floorPosition2"]
                 hittime=chart["judgeLineList"][k]["notesAbove"][j]["time"]
+                NS=chart["judgeLineList"][k]["notesAbove"][j]["speed"]
                 if f2>=floor_range[0] and f<=floor_range[1] and chart["judgeLineList"][k]["notesAbove"][j]['time']+chart["judgeLineList"][k]["notesAbove"][j]['holdTime']>=beat:
                     distance=(chart["judgeLineList"][k]["notesAbove"][j]['floorPosition']-floor_range[0])*height/1080
                     distance2=(chart["judgeLineList"][k]["notesAbove"][j]['floorPosition2']-floor_range[0])*height/1080
@@ -426,6 +468,15 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                         hold_this_frame.append(chart["judgeLineList"][k]["notesAbove"][j])
                     elif chart["judgeLineList"][k]["notesAbove"][j]["type"]!=5:
                         note_this_frame.append(chart["judgeLineList"][k]["notesAbove"][j])
+                elif NS==0 and f2>=floor_range[0]:
+                    distance=(chart["judgeLineList"][k]["notesAbove"][j]['floorPosition']-floor_range[0])*height/1080
+                    distance2=(chart["judgeLineList"][k]["notesAbove"][j]['floorPosition2']-floor_range[0])*height/1080
+                    chart["judgeLineList"][k]["notesAbove"][j].update({'linex':linex,
+                                                                    'liney':liney,
+                                                                    'rotate':rotate,
+                                                                    'distance':distance,
+                                                                    'distance2':distance2})
+                    note_this_frame.append(chart["judgeLineList"][k]["notesAbove"][j])
                 elif i-chart["judgeLineList"][k]["notesAbove"][j]['hitFrame']>30*fps/60:
                     chart["judgeLineList"][k]["notesAbove"].pop(j)
                     chart["judgeLineList"][k]["notesAbove"].insert(j,"delete")
@@ -441,11 +492,17 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                     if i-chart["judgeLineList"][k]["notesBelow"][j]['hitFrame']<30*fps/60 and i-chart["judgeLineList"][k]["notesBelow"][j]['hitFrame']>=0:
                         effect_this_frame.append(chart["judgeLineList"][k]["notesBelow"][j])
                 except:
-                    pass
+                    chart["judgeLineList"][k]["notesBelow"].pop(j)
+                    chart["judgeLineList"][k]["notesBelow"].insert(j,"delete")
+                    
+            while "delete" in chart["judgeLineList"][k]["notesBelow"]:
+                chart["judgeLineList"][k]["notesBelow"].remove("delete")
+                
             for j in range(len(chart["judgeLineList"][k]["notesBelow"])):
                 f=chart["judgeLineList"][k]["notesBelow"][j]["floorPosition"]
                 f2=chart["judgeLineList"][k]["notesBelow"][j]["floorPosition2"]
                 hittime=chart["judgeLineList"][k]["notesBelow"][j]["time"]
+                NS=chart["judgeLineList"][k]["notesBelow"][j]["speed"]
                 if f2>=floor_range[0] and f<=floor_range[1] and chart["judgeLineList"][k]["notesBelow"][j]['time']+chart["judgeLineList"][k]["notesBelow"][j]['holdTime']>=beat:
                     distance=(chart["judgeLineList"][k]["notesBelow"][j]['floorPosition']-floor_range[0])*height/1080
                     distance2=(chart["judgeLineList"][k]["notesBelow"][j]['floorPosition2']-floor_range[0])*height/1080
@@ -458,6 +515,15 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                         hold_this_frame.append(chart["judgeLineList"][k]["notesBelow"][j])
                     else:
                         note_this_frame.append(chart["judgeLineList"][k]["notesBelow"][j])
+                elif NS==0 and f2>=floor_range[0]:
+                    distance=(chart["judgeLineList"][k]["notesBelow"][j]['floorPosition']-floor_range[0])*height/1080
+                    distance2=(chart["judgeLineList"][k]["notesBelow"][j]['floorPosition2']-floor_range[0])*height/1080
+                    chart["judgeLineList"][k]["notesBelow"][j].update({'linex':linex,
+                                                                    'liney':liney,
+                                                                    'rotate':rotate,
+                                                                    'distance':distance,
+                                                                    'distance2':distance2})
+                    note_this_frame.append(chart["judgeLineList"][k]["notesBelow"][j])
                 elif i-chart["judgeLineList"][k]["notesBelow"][j]['hitFrame']>30*fps/60:
                     chart["judgeLineList"][k]["notesBelow"].pop(j)
                     chart["judgeLineList"][k]["notesBelow"].insert(j,"delete")
@@ -535,19 +601,32 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                 frame.paste(particle[int((i-effect_this_frame[k]['hitFrame'])*60/fps)],particle_pos[3],particle[int((i-effect_this_frame[k]['hitFrame'])*60/fps)])
 
         draw = ImageDraw.Draw(frame)
-        combo_size = combo_font1.getsize(str(combo_this_frame))
+        
         if combo_this_frame >= 3:
+            
+            combo_size = combo_font1.getsize(str(combo_this_frame))
             draw.text((int(0.5*background.width-0.5*title[0]),int(100*height/1080) - 8),
-                    "COMBO",font=combo_font2,fill=(250,250,250))
+                    Combo_text,font=combo_font2,fill=(250,250,250))
             draw.text((int(0.5 * background.width - 0.5 * combo_size[0]),int(20 * height / 1080) - 3),
                     str(combo_this_frame) ,font=combo_font1, fill=(250,250,250))
         score_size=score_font.getsize(score_this_frame)
-        draw.text((int(background.width-score_size[0]-30*height/1080) + 7,int(30*height/1080) + 2),
+        draw.text((int(background.width-score_size[0]-50*height/1080) + 7,int(30*height/1080) + 2),
                 score_this_frame,font=score_font,fill=(250,250,250))
+       
+        draw.text((int(41 * height / 1080), int(frame.height - 39 * height / 1080 - Song_title[1])),
+                  songName, font=text_font, fill=(255,255,255))
+        
+        draw.text((int(frame.width - 41 * height / 1080 - Level_title[0]), 
+                   int(frame.height - 39 * height / 1080 - Level_title[1])), level, font=text_font, fill=(255,255,255))
+
+        
+        pause = pause.resize((int(pause.width * height / 1080), int(pause.height * height / 1080)))
+        frame.paste(pause, (int(60 * height / 1920), int(40 * height / 1080)), mask = pause)
         del draw
+        
         #进度条
         frame.paste(ProgressBar, (int(i / totalpaint * background.width) - ProgressBar.width, 0), ProgressBar)
-
+        
         videowrite.write(cv2.cvtColor(numpy.asarray(frame),cv2.COLOR_RGB2BGR))
         photo=ImageTk.PhotoImage(frame.resize((int(200*frame.width/frame.height),200)))
 
@@ -556,14 +635,83 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
         showframe.update()
         
     videowrite.release()
+    
+    End_UI_1 = Image.new('RGBA', (width, height), (0,0,0,0))
+    draw = ImageDraw.Draw(End_UI_1)
+    if combo_this_frame >= 3:
+        
+        combo_size = combo_font1.getsize(str(combo_this_frame))
+        draw.text((int(0.5 * background.width - 0.5 * combo_size[0]),int(20 * height / 1080) - 3),
+                str(combo_this_frame) ,font=combo_font1, fill=(250,250,250))
+    score_size=score_font.getsize(score_this_frame)
+    draw.text((int(background.width-score_size[0]-50*height/1080) + 7,int(30*height/1080) + 2),
+            score_this_frame,font=score_font,fill=(250,250,250))
+    
+    pause = pause.resize((int(pause.width * height / 1080), int(pause.height * height / 1080)))
+    End_UI_1.paste(pause, (int(60 * height / 1920), int(40 * height / 1080)), mask = pause)
+    del draw
+    
+    End_UI_3 = Image.new('RGBA', (width, height), (0,0,0,0))
+    draw = ImageDraw.Draw(End_UI_3)
+    if combo_this_frame >= 3:
+        draw.text((int(0.5*background.width-0.5*title[0]),int(100*height/1080) - 8),
+                Combo_text,font=combo_font2,fill=(250,250,250))
+    del draw
+    
+    End_UI_2 = Image.new('RGBA', (width, height), (0,0,0,0))
+    draw = ImageDraw.Draw(End_UI_2)
+    
+    draw.text((int(41 * height / 1080), int(frame.height - 39 * height / 1080 - Song_title[1])),
+              songName, font=text_font, fill=(255,255,255))
+    
+    draw.text((int(frame.width - 41 * height / 1080 - Level_title[0]), 
+               int(frame.height - 39 * height / 1080 - Level_title[1])), level, font=text_font, fill=(255,255,255))
+
+    del draw
+    
+    End_UI_1.save("tmp/"+str(rand_id)+" UI_1.png")
+    End_UI_2.save("tmp/"+str(rand_id)+" UI_2.png")
+    End_UI_3.save("tmp/"+str(rand_id)+" UI_3.png")
+    
+    if BV:
+        cap.set(cv2.CAP_PROP_POS_FRAMES, i)
+        ret, vframe = cap.read()
+        cv_image = cv2.cvtColor(vframe, cv2.COLOR_BGR2RGB)
+        # 将NumPy数组转换为PIL Image对象
+        frame = ImageEnhance.Brightness(Image.fromarray(cv_image)).enhance(0.55)
+        frame.save("tmp/"+str(rand_id)+" UI_4.png")
+    else:
+        background.save("tmp/"+str(rand_id)+" UI_4.png")
+        
+    try:
+        cap.release()
+    except:
+        pass
+    
+    var.set("正在生成开场/结算动画")
+    showframe.update()
+    
+    if Superior_Data[0] != "禁用":
+        AST=int(Superior_Data[0].split()[0].replace("s",""))
+        Animation_data=[songName,level,width,height,fps,rand_id,APS,totalcombo,Picture,AST]
+        Animation.start(Animation_data)
+        
+    if Superior_Data[1] != "禁用":
+        AET=int(Superior_Data[1].split()[0].replace("s",""))
+        Animation_data=[songName,level,width,height,fps,rand_id,APS,totalcombo,Picture,AET]
+        print(Animation_data)
+        Animation.end(Animation_data)
+    
+    mkdir("export")
     var.set("正在合成音视频")
     showframe.update()
-    mkdir("export")
-    
-    vidpath = "tmp/export.avi"
-    audpath = "tmp/hitsound.wav"
-    export_p = "export"
+    vidpath = os.path.abspath("tmp/"+str(rand_id)+" export_1.avi")
+    audpath = os.path.abspath("tmp/"+str(rand_id)+" tmp_2.wav")
+    export_p = os.path.abspath("export")
     video_add_audio(vidpath, audpath, export_p, f"{songName}.mp4")
 
     messagebox.showinfo("完成",f"视频已保存至{export_p}文件夹")
     showframe.destroy()
+
+root=tkinter.Tk()
+root.withdraw()

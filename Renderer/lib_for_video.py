@@ -2,6 +2,7 @@
 import math
 import os
 from PIL import Image, ImageFilter, ImageChops, ImageEnhance
+from FPY import FfmpegProgress
 
 def Trim(img,hight,width,Blur):
     scale=hight/width
@@ -153,9 +154,9 @@ def linepos(hight,width,rotate,xp,yp,aline):
         y=k*x-k*xp+yp
     return (int(x-0.5*aline.width),int(y-0.5*aline.height),int(x),int(y))
     
-def score(combo,total):
-    s=int(1000000*combo/total)
-    t=str(10000000+s)
+def score(combo,total,APS):
+    s=int(APS*combo/total)
+    t=str(10**int(math.log(APS+0.5)/math.log(10)+1)+s)
     return t[1:]
 
 def beat2msec(s, bpm, hitsoundoffset):
@@ -171,3 +172,45 @@ def mkdir(path):
     else:
         return False
     
+def process_video(input_file, output_file, frame_rate, resolution,var,showframe):
+    cmd = [
+    'ffmpeg',
+    '-i', input_file,
+    '-c:v', 'libxvid',
+    '-vf', f'scale={resolution}, crop=ih*{resolution.split("x")[0]}/{resolution.split("x")[1]}:ih',
+    '-r', str(frame_rate),
+    '-b:v', '50M',
+    output_file]
+    ff = FfmpegProgress(cmd)
+    #for progress in ffmpeg_progress_yield.run(cmd):
+    for progress in ff.run_command_with_progress():
+        var.set(f'背景视频预处理: {progress:.2f}%')
+        showframe.update()
+    
+#def process_video(input_file, output_file, frame_rate, resolution):
+#    codec = 'libxvid' # 设定编码格式
+#    width, height = map(int, resolution.split('x'))
+#    aspect_ratio = width / height
+
+#    ff = ffmpy.FFmpeg(
+#        inputs={input_file: None},
+#        outputs={'pipe:': '-vf "crop=ih*{aspect_ratio}/1:ih" -f null -'}
+#    )
+#    stdout, stderr = ff.run(stderr=subprocess.PIPE)
+#    crop_line = next((line for line in stderr.decode().split('\n') if 'Parsed_crop' in line), None)
+#    
+#    if crop_line:
+#        w_in, h_in = map(int,re.search(r'w:(\d+) h:(\d+)', crop_line).groups())
+#        aspect_ratio_in = w_in / h_in
+#        if aspect_ratio != aspect_ratio_in:
+#            filter_str = f'-vf "crop=ih*{aspect_ratio}/1:ih,scale={resolution}"'
+#        else:
+#            filter_str = f'-vf scale={resolution}'
+#    else:
+#        filter_str = f'-vf scale={resolution}'
+
+#    ff = ffmpy.FFmpeg(
+#        inputs={input_file: None},
+#        outputs={output_file: f'{filter_str} -r {frame_rate} -vcodec {codec}'}
+#    )
+#    ff.run()
