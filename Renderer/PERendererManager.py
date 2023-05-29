@@ -3,6 +3,7 @@ import tkinter
 from tkinter import messagebox
 from tkinter import filedialog
 from tkinter import ttk
+from tkinter.ttk import Notebook, Frame
 import zipfile
 import os
 import traceback
@@ -52,6 +53,7 @@ def load():
             table.delete(item)
         for i in range(0,len(chartdata)):
             if chartdata[i]=="#\n":
+                
                 table.insert("",0,values=(chartdata[i+1][6:-1],
                                           chartdata[i+2][6:-1],
                                           chartdata[i+3][9:-1],
@@ -75,15 +77,48 @@ def load():
         else:
             return messagebox.showinfo("Error","无效目录")
         
-def importchart():
+def load_this_page(PEdata,T):
     try:
-        with open("PEdata","r",encoding="utf_8") as p:
-            PEdata=p.read()
-            p.close()
-        if PEdata=="":
-            raise "PEdata未找到有效路径"
+        #with open("PEdata","r",encoding="utf_8") as p:
+        #    PEdata=p.read()
+        #    p.close()
+        settings_fix(PEdata.rstrip('\n')+"Settings.txt")
+        with open(PEdata.rstrip('\n')+"Settings.txt","r",encoding="utf_8") as t:
+            chartdata=t.readlines()
+            t.close()
+        #global table
+        elem=T.get_children()
+        for item in elem:
+            T.delete(item)
+        for i in range(0,len(chartdata)):
+            if chartdata[i]=="#\n":
+                
+                T.insert("",0,values=(chartdata[i+1][6:-1],
+                                          chartdata[i+2][6:-1],
+                                          chartdata[i+3][9:-1],
+                                          chartdata[i+4][7:-1],
+                                          chartdata[i+5][7:-1],
+                                          chartdata[i+6][10:-1],
+                                          chartdata[i+7][9:-1],
+                                          chartdata[i+8][9:-1],))
     except:
-        return messagebox.showinfo("Error","未绑定您的 PhiEditer")
+        #with open("ErrorsLog.txt","a",encoding="utf_8") as t:
+        #    traceback.print_exc(file=t)
+        #    t.close()
+        #messagebox.showinfo("绑定PE","首次运行时请绑定您的PhiEditer")
+        #PEPath=filedialog.askopenfilename(initialfile="PhiEditer.exe",filetypes=[('PhiEditer','.exe')])
+        #with open("PEdata","w",encoding="utf_8") as t:
+        #    t.write(PEPath.replace("PhiEditer.exe",""))
+        #    t.close()
+        #if "PhiEditer.exe" in PEPath:
+        #    load()
+        #    return messagebox.showinfo("Success","成功绑定 PhiEditer")
+        #else:
+        #    return messagebox.showinfo("Error","无效目录")
+        pass
+        
+def importchart(Path,T):
+    PEdata=Path.rstrip('\n')
     picture=["png","jpg","jpeg"]
     music=["mp3","wav","ogg","flac"]
     filePath=filedialog.askopenfilename(filetypes=[('PE谱面','.zip')])
@@ -185,9 +220,9 @@ def importchart():
         t.write(info)
         t.close()
     messagebox.showinfo("Success","成功导入谱面")
-    load()
+    load_this_page(PEdata,T)
 
-def exportchart(item):
+def exportchart(item,Path,T):
     
     def add_bom(file, bom: bytes):
         with open(file, 'r+b') as f:
@@ -196,14 +231,7 @@ def exportchart(item):
             f.write(bom + org_contents)
     
     
-    try:
-        with open("PEdata","r",encoding="utf_8") as p:
-            PEdata=p.read()
-            p.close()
-        if PEdata=="":
-            raise "PEdata未找到有效路径"
-    except:
-        return messagebox.showinfo("Error","未绑定您的 PhiEditer")
+    PEdata=Path.rstrip('\n')
     def infocsv(infolist):
         setinfo.destroy()
         item=infolist[8]
@@ -312,29 +340,22 @@ def exportchart(item):
             z.close()
             messagebox.showinfo("Success","成功导出谱面")
 
-def deletechart(item):
+def deletechart(item,Path,T):
     
     deletelist=list(item)
     
     #global table
-    try:
-        with open("PEdata","r",encoding="utf_8") as p:
-            PEdata=p.read()
-            p.close()
-        if PEdata=="":
-            raise "PEdata未找到有效路径"
-    except:
-        return messagebox.showinfo("Error","未绑定您的 PhiEditer")
+    PEdata=Path.rstrip('\n')
     result=False
     if len(item)==0:
         messagebox.showinfo("Error","未选择谱面")
     elif len(item)==1:
-        result=messagebox.askyesno("Delete","是否删除谱面 "+table.item((item[0],),"values")[0])
+        result=messagebox.askyesno("Delete","是否删除谱面 "+T.item((item[0],),"values")[0])
     else:
-        result=messagebox.askyesno("Delete","是否删除 "+table.item((item[0],),"values")[0]+" 等 "+str(len(item))+" 个谱面")
+        result=messagebox.askyesno("Delete","是否删除 "+T.item((item[0],),"values")[0]+" 等 "+str(len(item))+" 个谱面")
     if result:
         for for_delete in deletelist:
-            item=table.item((for_delete,),"values")
+            item=T.item((for_delete,),"values")
             info="\n#\nName: "+item[0]+"\nSong: "+item[1]+"\nPicture: "+item[2]+"\nChart: "+item[3]+"\nLevel: "+item[4]+"\nComposer: "+item[5]+"\nCharter: "+item[6]+"\nPainter: "+item[7]
             with open(PEdata+"Settings.txt","r",encoding="utf_8") as t:
                 basicset=t.read()
@@ -359,11 +380,11 @@ def deletechart(item):
                 os.remove(PEdata+"Resources/"+item[2])
                 
         messagebox.showinfo("Success","已删除谱面 ")
-    load()
+    load_this_page(PEdata,T)
 
-def editinfo(item):
+def editinfo(item,Path,T):
     
-    def newinfo(infolist):
+    def newinfo(infolist,T):
         setinfo.destroy()
         PEdata=infolist[9]
         info=("#\nName: "+infolist[3]+
@@ -381,16 +402,9 @@ def editinfo(item):
         with open(PEdata+"Settings.txt","w",encoding="utf_8") as t:
             t.write(settings.replace(infolist[8],info))
             t.close()
-        load()
+        load_this_page(PEdata,T)
     
-    try:
-        with open("PEdata","r",encoding="utf_8") as p:
-            PEdata=p.read()
-            p.close()
-        if PEdata=="":
-            raise "PEdata未找到有效路径"
-    except:
-        return messagebox.showinfo("Error","未绑定您的 PhiEditer")
+    PEdata=Path.rstrip('\n')
     
     if item=="":
         messagebox.showinfo("Error","未选择谱面")
@@ -459,24 +473,16 @@ def editinfo(item):
         enillustrator.insert(0,item[7])
         enillustrator.place(relx=0.52,rely=0.82,anchor=tkinter.CENTER)
     
-        done=tkinter.Button(setinfo,text='确认修改',font=('',10),width=10,height=1,command=lambda:newinfo([enchart.get(),enmusic.get(),enphoto.get(),enname.get(),encomposer.get(),enlevel.get(),enillustrator.get(),encharter.get(),oldinfo,PEdata]))
+        done=tkinter.Button(setinfo,text='确认修改',font=('',10),width=10,height=1,command=lambda:newinfo([enchart.get(),enmusic.get(),enphoto.get(),enname.get(),encomposer.get(),enlevel.get(),enillustrator.get(),encharter.get(),oldinfo,PEdata],T))
         done.place(relx=0.5,rely=0.92,anchor=tkinter.CENTER)
         setinfo.mainloop()
 
-def check():
+def check(Path,T):
     
     def checked():
         show_lack.destroy()
     
-    try:
-        with open("PEdata","r",encoding="utf_8") as p:
-            PEdata=p.read()
-            p.close()
-        if PEdata=="":
-            raise "PEdata未找到有效路径"
-        
-    except:
-        return messagebox.showinfo("Error","未绑定您的 PhiEditer")
+    PEdata=Path.rstrip('\n')
     
     with open(PEdata+"Settings.txt","r",encoding="utf_8") as t:
         chartdata=t.readlines()
@@ -529,6 +535,114 @@ def check():
     done.place(relx=0.5,rely=0.94,anchor=tkinter.CENTER)
     
     show_lack.update()
+  
+def add_page():
+    
+    def cancel():
+        EnterName.destroy()
+    
+    def comfirm(Path):
+        PageName=enname.get()
+        if PageName=="":
+            messagebox.showinfo("Error","不可以为空")
+        else:
+            with open("PEdata","a",encoding="utf_8") as t:
+                t.write("\n"+PageName+"->"+Path)
+                t.close()
+            
+            frame = Frame(notebook)
+            Name=PageName
+            table=ttk.Treeview(frame,columns=("名称","音频","背景","谱面","难度","曲师","谱师","画师"),show="headings")
+            b1=tkinter.Button(frame,text='导入谱面',font=('',10),width=9,height=1,command=lambda P=Path,T=table:importchart(P,T))
+            b1.place(relx=0.076,rely=0.055,anchor=tkinter.CENTER)
+            b2=tkinter.Button(frame,text='导出谱面',font=('',10),width=9,height=1,command=lambda P=Path,T=table:exportchart(T.item(T.selection(),"values"),P,T))
+            b2.place(relx=0.2,rely=0.055,anchor=tkinter.CENTER)
+            b3=tkinter.Button(frame,text='删除谱面',font=('',10),width=9,height=1,command=lambda P=Path,T=table:deletechart(T.selection(),P,T))
+            b3.place(relx=0.324,rely=0.055,anchor=tkinter.CENTER)
+            b4=tkinter.Button(frame,text='编辑信息',font=('',10),width=9,height=1,command=lambda P=Path,T=table:editinfo(T.item(T.selection(),"values"),P,T))
+            b4.place(relx=0.076,rely=0.144,anchor=tkinter.CENTER)
+            b5=tkinter.Button(frame,text='视频渲染',font=('',10),width=9,height=1,command=lambda P=Path,T=table:renderer(T.item(T.selection(),"values"),P))
+            b5.place(relx=0.2,rely=0.144,anchor=tkinter.CENTER)
+            b6=tkinter.Button(frame,text='检查资源',font=('',10),width=9,height=1,command=lambda P=Path,T=table:check(P,T))
+            #b6=tkinter.Button(root,text='检查资源',font=('',10),width=9,height=1,command=lambda:print(table.selection()))
+            b6.place(relx=0.324,rely=0.144,anchor=tkinter.CENTER)
+            b7=tkinter.Button(frame,text='新增页面',font=('',10),width=8,height=1,command=add_page)
+            b7.place(relx=0.898,rely=0.055,anchor=tkinter.CENTER)
+            b8=tkinter.Button(frame,text='删除本页',font=('',10),width=8,height=1,command=lambda P=Path:delete_page(P))
+            b8.place(relx=0.898,rely=0.144,anchor=tkinter.CENTER)
+    
+            intro=tkinter.Label(frame, text="PhiEditerRenderManager\nQQ群号：695269639",font=('', 11),width=30,height=3)
+            intro.place(relx=0.62,rely=0.1,anchor=tkinter.CENTER)
+    
+            
+            table.column("名称",width=70)
+            table.column("音频",width=70)
+            table.column("背景",width=70)
+            table.column("谱面",width=70)
+            table.column("难度",width=70)
+            table.column("曲师",width=70)
+            table.column("谱师",width=70)
+            table.column("画师",width=70)
+            table.heading("名称",text="名称")
+            table.heading("音频",text="音频")
+            table.heading("背景",text="背景")
+            table.heading("谱面",text="谱面")
+            table.heading("难度",text="难度")
+            table.heading("曲师",text="曲师")
+            table.heading("谱师",text="谱师")
+            table.heading("画师",text="画师")
+            table.place(relx=0.485,rely=0.60,anchor=tkinter.CENTER)
+            ybar=ttk.Scrollbar(frame,orient="vertical")
+            #table["yscroll"]=ybar.set
+            #ybar.place(relx=0.96,rely=0.3,anchor=tkinter.CENTER)
+            ybar.pack(side="right",fill="y")
+            ybar.config(command=table.yview)
+            table.configure(yscrollcommand=ybar.set)
+            notebook.add(frame, text=Name)
+            load_this_page(Path,table)
+            try:
+                b0.destroy()
+            except:
+                pass
+            EnterName.destroy()        
+    messagebox.showinfo("绑定PE","选择您想要绑定的PhiEditer")
+    Path=filedialog.askopenfilename(initialfile="PhiEditer.exe",filetypes=[('PhiEditer','.exe')])
+    if Path=="":
+        return messagebox.showinfo("Error","无效目录")
+    EnterName=tkinter.Toplevel()
+    EnterName.title("新增页面")
+    EnterName.geometry("200x100")
+    EnterName.iconbitmap("Source/R.ico")
+    
+    name=tkinter.Label(EnterName, text='页面展示名:',font=('',10),width=30,height=1)
+    name.place(relx=0.5,rely=0.23,anchor=tkinter.CENTER)
+    
+    enname=tkinter.Entry(EnterName,show=None,width=20)
+    enname.insert(0,"PhiEditer")
+    enname.place(relx=0.5,rely=0.5,anchor=tkinter.CENTER)
+    Path=Path.replace("PhiEditer.exe","")
+    done=tkinter.Button(EnterName,text='确定',font=('',10),width=8,height=1,command=lambda:comfirm(Path))
+    done.place(relx=0.7,rely=0.8,anchor=tkinter.CENTER)
+    cancel=tkinter.Button(EnterName,text='取消',font=('',10),width=8,height=1,command=cancel)
+    cancel.place(relx=0.3,rely=0.8,anchor=tkinter.CENTER)
+    EnterName.update()
+    
+def delete_page(Path,Name):
+    
+    Text=Name+"->"+Path
+    
+    result=messagebox.askyesno("Delete","是否删除本页,此操作不会删除源文件")
+    
+    if result:
+        with open("PEdata","r",encoding="utf_8") as t:
+            basicset=t.read()
+            t.close()
+        with open("PEdata","w",encoding="utf_8") as t:
+            t.write(basicset.replace(Text,""))
+            t.close()
+        for tab_id in notebook.tabs():
+            if notebook.tab(tab_id, 'text') == Name:
+                notebook.forget(tab_id)
     
 def on_closing():
     root.quit()
@@ -536,51 +650,80 @@ def on_closing():
     
 if __name__ == "__main__":    
     root=tkinter.Tk()
-    root.title("FREMO 0.3.7")
-    root.geometry("600x300")
+    root.title("PhiEditerRendererManager 0.3.9")
+    root.geometry("600x310")
     root.iconbitmap("Source/R.ico")
-    b1=tkinter.Button(root,text='导入谱面',font=('',10),width=9,height=1,command=importchart)
-    b1.place(relx=0.076,rely=0.055,anchor=tkinter.CENTER)
-    b2=tkinter.Button(root,text='导出谱面',font=('',10),width=9,height=1,command=lambda:exportchart(table.item(table.selection(),"values")))
-    b2.place(relx=0.2,rely=0.055,anchor=tkinter.CENTER)
-    b3=tkinter.Button(root,text='删除谱面',font=('',10),width=9,height=1,command=lambda:deletechart(table.selection()))
-    b3.place(relx=0.324,rely=0.055,anchor=tkinter.CENTER)
-    b4=tkinter.Button(root,text='编辑信息',font=('',10),width=9,height=1,command=lambda:editinfo(table.item(table.selection(),"values")))
-    b4.place(relx=0.076,rely=0.144,anchor=tkinter.CENTER)
-    b5=tkinter.Button(root,text='视频渲染',font=('',10),width=9,height=1,command=lambda:renderer(table.item(table.selection(),"values")))
-    b5.place(relx=0.2,rely=0.144,anchor=tkinter.CENTER)
-    b6=tkinter.Button(root,text='检查资源',font=('',10),width=9,height=1,command=check)
-    #b6=tkinter.Button(root,text='检查资源',font=('',10),width=9,height=1,command=lambda:print(table.selection()))
-    b6.place(relx=0.324,rely=0.144,anchor=tkinter.CENTER)
-    b7=tkinter.Button(root,text='加载数据',font=('',10),width=8,height=3,command=load)
-    b7.place(relx=0.898,rely=0.1,anchor=tkinter.CENTER)
     
-    intro=tkinter.Label(root, text="PhiEditerRenderManager\nQQ群号：695269639",font=('', 11),width=30,height=3)
-    intro.place(relx=0.62,rely=0.1,anchor=tkinter.CENTER)
+    notebook = Notebook(root)
+    filename = 'PEdata'
+
+    if os.path.exists(filename):
+        with open('PEdata', 'r',encoding="utf_8") as f:
+            lines = f.readlines()
+
+        with open('PEdata', 'w',encoding="utf_8") as f:
+            for line in lines:
+                if line.strip():
+                    f.write(line)
+    else:
+        with open(filename, 'w',encoding="utf_8") as f:
+            f.close()
+    with open('PEdata', 'r',encoding="utf_8") as file:
+        lines = file.readlines()
+        if len(lines)==0:
+            b0=tkinter.Button(root,text='新增页面',font=('',10),width=10,height=2,command=add_page)
+            b0.place(relx=0.5,rely=0.5,anchor=tkinter.CENTER)
+        for i, line in enumerate(lines):
+            frame = Frame(notebook)
+            Name=line.split("->")[0]
+            Path=line.split("->")[1]
+            table=ttk.Treeview(frame,columns=("名称","音频","背景","谱面","难度","曲师","谱师","画师"),show="headings")
+            b1=tkinter.Button(frame,text='导入谱面',font=('',10),width=9,height=1,command=lambda P=Path,T=table:importchart(P,T))
+            b1.place(relx=0.076,rely=0.055,anchor=tkinter.CENTER)
+            b2=tkinter.Button(frame,text='导出谱面',font=('',10),width=9,height=1,command=lambda P=Path,T=table:exportchart(T.item(T.selection(),"values"),P,T))
+            b2.place(relx=0.2,rely=0.055,anchor=tkinter.CENTER)
+            b3=tkinter.Button(frame,text='删除谱面',font=('',10),width=9,height=1,command=lambda P=Path,T=table:deletechart(T.selection(),P,T))
+            b3.place(relx=0.324,rely=0.055,anchor=tkinter.CENTER)
+            b4=tkinter.Button(frame,text='编辑信息',font=('',10),width=9,height=1,command=lambda P=Path,T=table:editinfo(T.item(T.selection(),"values"),P,T))
+            b4.place(relx=0.076,rely=0.144,anchor=tkinter.CENTER)
+            b5=tkinter.Button(frame,text='视频渲染',font=('',10),width=9,height=1,command=lambda P=Path,T=table:renderer(T.item(T.selection(),"values"),P))
+            b5.place(relx=0.2,rely=0.144,anchor=tkinter.CENTER)
+            b6=tkinter.Button(frame,text='检查资源',font=('',10),width=9,height=1,command=lambda P=Path,T=table:check(P,T))
+            #b6=tkinter.Button(root,text='检查资源',font=('',10),width=9,height=1,command=lambda:print(table.selection()))
+            b6.place(relx=0.324,rely=0.144,anchor=tkinter.CENTER)
+            b7=tkinter.Button(frame,text='新增页面',font=('',10),width=8,height=1,command=add_page)
+            b7.place(relx=0.898,rely=0.055,anchor=tkinter.CENTER)
+            b8=tkinter.Button(frame,text='删除本页',font=('',10),width=8,height=1,command=lambda P=Path,N=Name:delete_page(P,N))
+            b8.place(relx=0.898,rely=0.144,anchor=tkinter.CENTER)
     
-    table=ttk.Treeview(root,columns=("名称","音频","背景","谱面","难度","曲师","谱师","画师"),show="headings")
-    table.column("名称",width=70)
-    table.column("音频",width=70)
-    table.column("背景",width=70)
-    table.column("谱面",width=70)
-    table.column("难度",width=70)
-    table.column("曲师",width=70)
-    table.column("谱师",width=70)
-    table.column("画师",width=70)
-    table.heading("名称",text="名称")
-    table.heading("音频",text="音频")
-    table.heading("背景",text="背景")
-    table.heading("谱面",text="谱面")
-    table.heading("难度",text="难度")
-    table.heading("曲师",text="曲师")
-    table.heading("谱师",text="谱师")
-    table.heading("画师",text="画师")
-    table.place(relx=0.485,rely=0.58,anchor=tkinter.CENTER)
-    ybar=ttk.Scrollbar(root,orient="vertical")
-    #table["yscroll"]=ybar.set
-    #ybar.place(relx=0.96,rely=0.3,anchor=tkinter.CENTER)
-    ybar.pack(side="right",fill="y")
-    ybar.config(command=table.yview)
-    table.configure(yscrollcommand=ybar.set)
+            intro=tkinter.Label(frame, text="PhiEditerRenderManager\nQQ群号：695269639",font=('', 11),width=30,height=3)
+            intro.place(relx=0.62,rely=0.1,anchor=tkinter.CENTER)
+            
+            table.column("名称",width=70)
+            table.column("音频",width=70)
+            table.column("背景",width=70)
+            table.column("谱面",width=70)
+            table.column("难度",width=70)
+            table.column("曲师",width=70)
+            table.column("谱师",width=70)
+            table.column("画师",width=70)
+            table.heading("名称",text="名称")
+            table.heading("音频",text="音频")
+            table.heading("背景",text="背景")
+            table.heading("谱面",text="谱面")
+            table.heading("难度",text="难度")
+            table.heading("曲师",text="曲师")
+            table.heading("谱师",text="谱师")
+            table.heading("画师",text="画师")
+            table.place(relx=0.485,rely=0.60,anchor=tkinter.CENTER)
+            ybar=ttk.Scrollbar(frame,orient="vertical")
+            #table["yscroll"]=ybar.set
+            #ybar.place(relx=0.96,rely=0.3,anchor=tkinter.CENTER)
+            ybar.pack(side="right",fill="y")
+            ybar.config(command=table.yview)
+            table.configure(yscrollcommand=ybar.set)
+            notebook.add(frame, text=Name)
+            load_this_page(Path,table)
+    notebook.pack(fill='both', expand=True)
     root.protocol("WM_DELETE_WINDOW", on_closing)
     root.mainloop()

@@ -4,6 +4,7 @@ import os
 from PIL import Image, ImageFilter, ImageChops, ImageEnhance
 from FPY import FfmpegProgress
 
+
 def Trim(img,hight,width,Blur):
     scale=hight/width
     imgscale=img.height/img.width
@@ -179,7 +180,7 @@ def process_video(input_file, output_file, frame_rate, resolution,var,showframe)
     '-c:v', 'libxvid',
     '-vf', f'scale={resolution}, crop=ih*{resolution.split("x")[0]}/{resolution.split("x")[1]}:ih',
     '-r', str(frame_rate),
-    '-b:v', '50M',
+    '-b:v', '30M',
     output_file]
     ff = FfmpegProgress(cmd)
     #for progress in ffmpeg_progress_yield.run(cmd):

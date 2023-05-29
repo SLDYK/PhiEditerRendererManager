@@ -9,7 +9,7 @@ import os
 import sys
 import random
 
-def renderer(item):
+def renderer(item,Path):
     
     def init():#谱面基本信息框
     
@@ -41,14 +41,19 @@ def renderer(item):
                 notesize=float(enNoteSize.get().split()[0])
                 sound_Level=float(enSound.get().split()[0])
                 AST=enStartAnimation.get()
+                if AST=="启用":
+                    AST=10
                 AET=enEndAnimation.get()
+                if AET=="启用":
+                    AET=10
+                LOM=enLevelOver.get().split()[0]
                 
                 Superior_Data=[AST,AET,enPlayerName.get(),enComboText.get(),
-                               enUserIcon.get(),enVideoBackground.get(),enAPS.get()]
+                               enUserIcon.get(),enVideoBackground.get(),enAPS.get(),LOM,enLevelOver.get()]
                 
                 
                 base.destroy()
-                
+                #print([name,level,width,hight,fps,chart,picture,song,Highlight,blur,notesize,LineColor,sound_Level,Superior_Data])
                 start_rendering(name,level,width,hight,fps,chart,picture,song,Highlight,blur,notesize,LineColor,sound_Level,Superior_Data)
                 
                 
@@ -86,12 +91,7 @@ def renderer(item):
                     enTip.insert(0,a_Tip)
                     t.close()
         
-        try:
-            with open("PEdata","r",encoding="utf_8") as p:
-                PEdata=p.read()
-                p.close()
-        except:
-            pass    
+        PEdata=Path.rstrip('\n')
         
         base=tkinter.Tk()
         base.title("Settings")
@@ -108,6 +108,7 @@ def renderer(item):
         Var3=tkinter.StringVar(base)
         Var4=tkinter.StringVar(base)
         Var5=tkinter.StringVar(base)
+        Var6=tkinter.StringVar(base)
         
         Name=tkinter.Label(setinfo, text='曲名:',font=('',10),width=10,height=1)
         Name.place(x=100,y=80,anchor="e")
@@ -218,27 +219,36 @@ def renderer(item):
         StartAnimation=tkinter.Label(superior, text='开场动画:',font=('',10),width=10,height=1)
         StartAnimation.place(x=100,y=80,anchor="e")
         
-        Var4.set("5s #推荐")
+        Var4.set("禁用")
         
         enStartAnimation=ttk.Combobox(superior,width=20,textvariable=Var4,state="readonly")
-        enStartAnimation['values']=("禁用","5s #推荐")
+        enStartAnimation['values']=("禁用")
         enStartAnimation.place(x=100,y=80,anchor="w")
         
         EndAnimation=tkinter.Label(superior, text='结算动画:',font=('',10),width=10,height=1)
         EndAnimation.place(x=100,y=130,anchor="e")
         
         
-        Var5.set("10s #推荐")
+        Var5.set("启用")
         
         enEndAnimation=ttk.Combobox(superior,width=20,textvariable=Var5,state="readonly")
-        enEndAnimation['values']=("禁用","10s #推荐")
+        enEndAnimation['values']=("禁用","启用")
         enEndAnimation.place(x=100,y=130,anchor="w")
+        
+        LevelOver=tkinter.Label(superior, text='结算音乐:',font=('',10),width=10,height=1)
+        LevelOver.place(x=350,y=80,anchor="e")
+        
+        Var6.set("IN #默认")
+        
+        enLevelOver=ttk.Combobox(superior,width=20,textvariable=Var6,state="readonly")
+        enLevelOver['values']=("EZ","HD","IN","AT")
+        enLevelOver.place(x=350,y=80,anchor="w")
         
         PlayerName=tkinter.Label(superior, text='玩家名称:',font=('',10),width=10,height=1)
         PlayerName.place(x=350,y=180,anchor="e")
         
         enPlayerName=tkinter.Entry(superior,show=None,width=23)
-        enPlayerName.insert(0,"GUEST")
+        enPlayerName.insert(0,"#玩家框还没做")
         enPlayerName.place(x=350,y=180,anchor="w")
         
         ComboText=tkinter.Label(superior, text='连击字段:',font=('',10),width=10,height=1)

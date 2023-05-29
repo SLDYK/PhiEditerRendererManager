@@ -3,9 +3,6 @@ import os
 from pydub import AudioSegment
 from lib_for_video import beat2msec
 import FFM as ffmpy
-#from ffmpeg_progress_yield import FfmpegProgress
-import tkinter
-import subprocess
  
 cur_path = os.path.dirname(__file__)
 
@@ -62,6 +59,13 @@ def video_add_audio(video_path: str, audio_path: str, output_dir: str, videoname
         outputs={result: '-map 0:v -map 1:a -c:v copy -c:a {} -y'.format(_codec)})
     ff.run()
     return result
+
+def merge_videos(video1_path:str, video2_path:str, export_folder:str, export_name:str):
+    ff = ffmpy.FFmpeg(
+        inputs={video1_path: None, video2_path: None},
+        outputs={f"{export_folder}/{export_name}.mp4": "-filter_complex '[0:v] [0:a] [1:v] [1:a] concat=n=2:v=1:a=1' -f mp4 -q:v 0 -preset ultrafast"}
+    )
+    ff.run()
 #def video_add_audio(video_path: str, audio_path: str, output_dir: str, videoname: str, progress_var: tkinter.StringVar):
 
 #    _ext_audio = os.path.basename(audio_path).strip().split('.')[-1]

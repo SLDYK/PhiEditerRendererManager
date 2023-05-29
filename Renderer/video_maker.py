@@ -13,19 +13,18 @@ from lib_for_video import Trim, f2b, b2f, cut, present_floor, end_floor
 from lib_for_video import holdhead_fix, holdend_fix, speed_fix, score
 from lib_for_video import paste_hold_pos, paste_pos, effect_pos, p4
 from lib_for_video import mkdir, linepos, process_video
-from lib_for_audio import audio2wav, PhiAudio, video_add_audio
+from lib_for_audio import audio2wav, PhiAudio, video_add_audio, merge_videos
 from lib_for_json import cut2
 from pec2json import pec2json
 import Animation
 
 def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,HighLight,Blur,
                     noteSize,LineColor,sound_Level,Superior_Data):#主程序
-    
+
     showframe=tkinter.Toplevel()
     showframe.title("Preview(240p)")
     showframe.geometry("400x300")
     showframe.iconbitmap("Source/R.ico")
-    
     
     var=tkinter.StringVar()
     rand_id=random.randint(100000000,695269639)
@@ -78,6 +77,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     title = combo_font2.getsize(Combo_text)
     
     pause = Image.open("Source/Pause.png").convert("RGBA")
+    pause = pause.resize((int(pause.width * height / 1080), int(pause.height * height / 1080)))
     ProgressBar=Image.open("Source/ProgressBar.png").convert("RGBA")
     ProgressBar=ProgressBar.resize((int(ProgressBar.width * width/1920), int(ProgressBar.height * width/1920)))
     tap=Image.open("Source/Tap.png").convert("RGBA")
@@ -191,6 +191,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     showframe.update()
     if chartPath[-1]=="c":
         chart=pec2json(chartPath)
+        
         BarPerMinute=chart["judgeLineList"][0]["bpm"]
     else:
         with open(chartPath,"r",encoding="utf_8") as t:
@@ -273,7 +274,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                 notelist.append(chart["judgeLineList"][i]["notesAbove"][j])
                 hittimelist.append(chart["judgeLineList"][i]["notesAbove"][j]["time"])
                 hitsoundlist.append((chart["judgeLineList"][i]["notesAbove"][j]["time"], chart["judgeLineList"][i]["notesAbove"][j]["type"]))
-            
+                
     for i in range(len(hittimelist)):
         if hittimelist.count(hittimelist[i])!=1:
             notelist[i].update({'HL':True})
@@ -368,7 +369,12 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     print(combo_this_frame, totalcombo,APS)
     
     print(totalpaint)
+    
+    #totalpaint=100
+
+    
     for i in range(totalpaint):
+        
         
         if BV:
             cap.set(cv2.CAP_PROP_POS_FRAMES, i)
@@ -445,9 +451,10 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                     if i-chart["judgeLineList"][k]["notesAbove"][j]['hitFrame']<30*fps/60 and i-chart["judgeLineList"][k]["notesAbove"][j]['hitFrame']>=0:
                         effect_this_frame.append(chart["judgeLineList"][k]["notesAbove"][j])
                 except:
-                    chart["judgeLineList"][k]["notesAbove"].pop(j)
-                    chart["judgeLineList"][k]["notesAbove"].insert(j,"delete")
-                    
+                    if beat > chart["judgeLineList"][k]["notesAbove"][j]['time']+chart["judgeLineList"][k]["notesAbove"][j]['holdTime'] :
+                        chart["judgeLineList"][k]["notesAbove"].pop(j)
+                        chart["judgeLineList"][k]["notesAbove"].insert(j,"delete")
+                   
             while "delete" in chart["judgeLineList"][k]["notesAbove"]:
                 chart["judgeLineList"][k]["notesAbove"].remove("delete")
                 
@@ -477,9 +484,9 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                                                                     'distance':distance,
                                                                     'distance2':distance2})
                     note_this_frame.append(chart["judgeLineList"][k]["notesAbove"][j])
-                elif i-chart["judgeLineList"][k]["notesAbove"][j]['hitFrame']>30*fps/60:
-                    chart["judgeLineList"][k]["notesAbove"].pop(j)
-                    chart["judgeLineList"][k]["notesAbove"].insert(j,"delete")
+                #elif i-chart["judgeLineList"][k]["notesAbove"][j]['hitFrame']>30*fps/60:
+                #    chart["judgeLineList"][k]["notesAbove"].pop(j)
+                #    chart["judgeLineList"][k]["notesAbove"].insert(j,"delete")
                 elif hittime-beat<4 and hittime-beat>=0:
                     chart["judgeLineList"][k]["notesAbove"][j].update({'linex':linex,
                                                                     'liney':liney,
@@ -489,11 +496,12 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
             
             for j in range(len(chart["judgeLineList"][k]["notesBelow"])):
                 try:
-                    if i-chart["judgeLineList"][k]["notesBelow"][j]['hitFrame']<30*fps/60 and i-chart["judgeLineList"][k]["notesBelow"][j]['hitFrame']>=0:
-                        effect_this_frame.append(chart["judgeLineList"][k]["notesBelow"][j])
+                   if i-chart["judgeLineList"][k]["notesBelow"][j]['hitFrame']<30*fps/60 and i-chart["judgeLineList"][k]["notesBelow"][j]['hitFrame']>=0:
+                       effect_this_frame.append(chart["judgeLineList"][k]["notesBelow"][j])
                 except:
-                    chart["judgeLineList"][k]["notesBelow"].pop(j)
-                    chart["judgeLineList"][k]["notesBelow"].insert(j,"delete")
+                    if beat > chart["judgeLineList"][k]["notesBelow"][j]['time']+chart["judgeLineList"][k]["notesBelow"][j]['holdTime'] :
+                        chart["judgeLineList"][k]["notesBelow"].pop(j)
+                        chart["judgeLineList"][k]["notesBelow"].insert(j,"delete")
                     
             while "delete" in chart["judgeLineList"][k]["notesBelow"]:
                 chart["judgeLineList"][k]["notesBelow"].remove("delete")
@@ -524,9 +532,9 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                                                                     'distance':distance,
                                                                     'distance2':distance2})
                     note_this_frame.append(chart["judgeLineList"][k]["notesBelow"][j])
-                elif i-chart["judgeLineList"][k]["notesBelow"][j]['hitFrame']>30*fps/60:
-                    chart["judgeLineList"][k]["notesBelow"].pop(j)
-                    chart["judgeLineList"][k]["notesBelow"].insert(j,"delete")
+                #elif i-chart["judgeLineList"][k]["notesBelow"][j]['hitFrame']>30*fps/60:
+                #    chart["judgeLineList"][k]["notesBelow"].pop(j)
+                #    chart["judgeLineList"][k]["notesBelow"].insert(j,"delete")
                 elif hittime-beat<4 and hittime-beat>=0:
                     chart["judgeLineList"][k]["notesBelow"][j].update({'linex':linex,
                                                                     'liney':liney,
@@ -610,7 +618,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
             draw.text((int(0.5 * background.width - 0.5 * combo_size[0]),int(20 * height / 1080) - 3),
                     str(combo_this_frame) ,font=combo_font1, fill=(250,250,250))
         score_size=score_font.getsize(score_this_frame)
-        draw.text((int(background.width-score_size[0]-50*height/1080) + 7,int(30*height/1080) + 2),
+        draw.text((int(background.width-score_size[0]-45*height/1080) + 7,int(30*height/1080) + 2),
                 score_this_frame,font=score_font,fill=(250,250,250))
        
         draw.text((int(41 * height / 1080), int(frame.height - 39 * height / 1080 - Song_title[1])),
@@ -619,8 +627,6 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
         draw.text((int(frame.width - 41 * height / 1080 - Level_title[0]), 
                    int(frame.height - 39 * height / 1080 - Level_title[1])), level, font=text_font, fill=(255,255,255))
 
-        
-        pause = pause.resize((int(pause.width * height / 1080), int(pause.height * height / 1080)))
         frame.paste(pause, (int(60 * height / 1920), int(40 * height / 1080)), mask = pause)
         del draw
         
@@ -644,11 +650,11 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
         draw.text((int(0.5 * background.width - 0.5 * combo_size[0]),int(20 * height / 1080) - 3),
                 str(combo_this_frame) ,font=combo_font1, fill=(250,250,250))
     score_size=score_font.getsize(score_this_frame)
-    draw.text((int(background.width-score_size[0]-50*height/1080) + 7,int(30*height/1080) + 2),
+    draw.text((int(background.width-score_size[0]-45*height/1080) + 7,int(30*height/1080) + 2),
             score_this_frame,font=score_font,fill=(250,250,250))
     
-    pause = pause.resize((int(pause.width * height / 1080), int(pause.height * height / 1080)))
     End_UI_1.paste(pause, (int(60 * height / 1920), int(40 * height / 1080)), mask = pause)
+    End_UI_1.paste(ProgressBar, (int(i / totalpaint * background.width) - ProgressBar.width, 0), ProgressBar)
     del draw
     
     End_UI_3 = Image.new('RGBA', (width, height), (0,0,0,0))
@@ -688,29 +694,41 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     except:
         pass
     
-    var.set("正在生成开场/结算动画")
-    showframe.update()
+    Ani=False
     
     if Superior_Data[0] != "禁用":
-        AST=int(Superior_Data[0].split()[0].replace("s",""))
+        AST=Superior_Data[0]
         Animation_data=[songName,level,width,height,fps,rand_id,APS,totalcombo,Picture,AST]
         Animation.start(Animation_data)
+        Ani=True
         
     if Superior_Data[1] != "禁用":
-        AET=int(Superior_Data[1].split()[0].replace("s",""))
-        Animation_data=[songName,level,width,height,fps,rand_id,APS,totalcombo,Picture,AET]
+        AET=Superior_Data[1]
+        Tier=Superior_Data[8]
+        Animation_data=[songName,level,width,height,fps,rand_id,APS,totalcombo,Picture,AET,var,showframe,Tier]
         print(Animation_data)
         Animation.end(Animation_data)
-    
+        Ani=True 
+        
     mkdir("export")
     var.set("正在合成音视频")
     showframe.update()
-    vidpath = os.path.abspath("tmp/"+str(rand_id)+" export_1.avi")
-    audpath = os.path.abspath("tmp/"+str(rand_id)+" tmp_2.wav")
-    export_p = os.path.abspath("export")
-    video_add_audio(vidpath, audpath, export_p, f"{songName}.mp4")
+    if Ani==False:
+        vidpath = os.path.abspath("tmp/"+str(rand_id)+" export_1.avi")
+        audpath = os.path.abspath("tmp/"+str(rand_id)+" tmp_2.wav")
+        export_p = os.path.abspath("export")
+        video_add_audio(vidpath, audpath, export_p, f"{songName}.mp4")
+    else:
+        try:
+            vidpath = os.path.abspath("tmp/"+str(rand_id)+" export_1.avi")
+            audpath = os.path.abspath("tmp/"+str(rand_id)+" tmp_2.wav")
+            export_p = os.path.abspath("tmp")
+            video_add_audio(vidpath, audpath, export_p, str(rand_id)+" export_2.mp4")
+            merge_videos("tmp/"+str(rand_id)+" export_2.mp4", "tmp/"+str(rand_id)+" Animation_3.mp4", "export", songName)
+        except:
+            pass
 
-    messagebox.showinfo("完成",f"视频已保存至{export_p}文件夹")
+    messagebox.showinfo("完成","视频已保存至 export 文件夹")
     showframe.destroy()
 
 root=tkinter.Tk()
