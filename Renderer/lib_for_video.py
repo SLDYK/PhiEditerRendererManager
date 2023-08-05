@@ -3,6 +3,7 @@ import math
 import os
 from PIL import Image, ImageFilter, ImageChops, ImageEnhance
 from FPY import FfmpegProgress
+import subprocess
 
 
 def Trim(img,hight,width,Blur):
@@ -93,7 +94,10 @@ def paste_pos(frame,note):
 
 def effect_pos(frame,note):
     # print(note)
-    x1=frame.width*note['linex']
+    try:
+        x1=frame.width*note['linex']
+    except:
+        print(note)
     y1=frame.height*(1-note['liney'])
     x2=x1+320/3*note['positionX']*math.cos(note['rotate']/180*math.pi)
     y2=y1-320/3*note['positionX']*math.sin(note['rotate']/180*math.pi)
@@ -157,6 +161,11 @@ def linepos(hight,width,rotate,xp,yp,aline):
     
 def score(combo,total,APS):
     s=int(APS*combo/total)
+    return s
+
+def score2(s,APS):
+    if s!=0:
+        s=s+1
     t=str(10**int(math.log(APS+0.5)/math.log(10)+1)+s)
     return t[1:]
 
@@ -182,7 +191,7 @@ def process_video(input_file, output_file, frame_rate, resolution,var,showframe)
     '-r', str(frame_rate),
     '-b:v', '30M',
     output_file]
-    ff = FfmpegProgress(cmd)
+    ff = FfmpegProgress(cmd, creationflags=subprocess.CREATE_NO_WINDOW)
     #for progress in ffmpeg_progress_yield.run(cmd):
     for progress in ff.run_command_with_progress():
         var.set(f'背景视频预处理: {progress:.2f}%')

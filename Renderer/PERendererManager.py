@@ -158,22 +158,25 @@ def importchart(Path,T):
                     t.close()
                 os.remove("infodir/"+file)
             except:
-                with open("infodir/info.txt","r",encoding="utf_8") as t:
-                    data=t.readlines()
-                    for i in range(len(data)):
-                        if "Level: " in data[i]:
-                            level=data[i][7:-1]
-                        elif "Charter: " in data[i]:
-                            charter=data[i][9:-1]
-                        elif "Composer: " in data[i]:
-                            composer=data[i][10:-1]
-                        elif "Painter: " in data[i]:
-                            painter=data[i][9:-1]
-                        elif "Name: " in data[i]:
-                            name=data[i][6:-1]
-                    t.close()
-                os.remove("infodir/info.txt")
-            os.rmdir("infodir")
+                pass
+# =============================================================================
+#                 with open("infodir/info.txt","r",encoding="utf_8") as t:
+#                     data=t.readlines()
+#                     for i in range(len(data)):
+#                         if "Level: " in data[i]:
+#                             level=data[i][7:-1]
+#                         elif "Charter: " in data[i]:
+#                             charter=data[i][9:-1]
+#                         elif "Composer: " in data[i]:
+#                             composer=data[i][10:-1]
+#                         elif "Painter: " in data[i]:
+#                             painter=data[i][9:-1]
+#                         elif "Name: " in data[i]:
+#                             name=data[i][6:-1]
+#                     t.close()
+#                 os.remove("infodir/info.txt")
+#             os.rmdir("infodir")
+# =============================================================================
             break
         elif file=="info.csv":
             fz.extract(file,"infodir/")
@@ -650,7 +653,7 @@ def on_closing():
     
 if __name__ == "__main__":    
     root=tkinter.Tk()
-    root.title("PhiEditerRendererManager 0.3.9")
+    root.title("PhiEditerRendererManager 0.3.9.2")
     root.geometry("600x310")
     root.iconbitmap("Source/R.ico")
     

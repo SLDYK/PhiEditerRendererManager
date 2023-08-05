@@ -7,10 +7,13 @@ import os
 import numpy
 import random
 import tkinter
+
+from win10toast_click import ToastNotifier
+
 from tkinter import messagebox
 from PIL import Image, ImageChops, ImageDraw, ImageFont, ImageTk, ImageEnhance
 from lib_for_video import Trim, f2b, b2f, cut, present_floor, end_floor
-from lib_for_video import holdhead_fix, holdend_fix, speed_fix, score
+from lib_for_video import holdhead_fix, holdend_fix, speed_fix, score, score2
 from lib_for_video import paste_hold_pos, paste_pos, effect_pos, p4
 from lib_for_video import mkdir, linepos, process_video
 from lib_for_audio import audio2wav, PhiAudio, video_add_audio, merge_videos
@@ -18,8 +21,7 @@ from lib_for_json import cut2
 from pec2json import pec2json
 import Animation
 
-def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,HighLight,Blur,
-                    noteSize,LineColor,sound_Level,Superior_Data):#主程序
+def start_rendering(Base_Data,Superior_Data):#主程序
 
     showframe=tkinter.Toplevel()
     showframe.title("Preview(240p)")
@@ -33,13 +35,14 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     pace.place(x=200,y=40,anchor=tkinter.CENTER)
     #生成随机id，防止tmp文件夹互相覆盖
     
+    songName,level,width,height,fps,chartPath,Picture,audioPath,HighLight,Blur,noteSize,LineColor,sound_Level=Base_Data
     
     Back_Video_Path=Superior_Data[5]
     BV=False
     
     Combo_text=Superior_Data[3]
     
-    
+    DynamicScore=Superior_Data[9]
     
     var.set("正在转换音频格式")
     showframe.update()
@@ -54,7 +57,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     audio2wav(audioPath,str(rand_id))
     showframe.update()
 
-    audioPath ="tmp/"+str(rand_id)+" tmp_1.wav"
+    audioPath ="tmp/"+str(rand_id)+" Song.wav"
     
     with contextlib.closing(wave.open(audioPath, 'r')) as f:
         frames = f.getnframes()
@@ -301,6 +304,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
             if chart["judgeLineList"][i]["notesBelow"][j]['type']==3:
                 b_hold=chart["judgeLineList"][i]["notesBelow"][j]
                 effect_time=range(int(b_hold['time']),int(b_hold['time']+b_hold['holdTime']),16)
+                
                 for k in effect_time:
                     a_effect={'type': 5,
                               'isFake': b_hold['isFake'],
@@ -336,7 +340,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     score_this_frame = 0
     totalcombo = chart['numOfNotes']
 
-    vidpath = "tmp/"+str(rand_id)+" export_1.avi"
+    vidpath = "tmp/"+str(rand_id)+" Video.avi"
     fourcc=cv2.VideoWriter_fourcc(*'XVID')
     videowrite=cv2.VideoWriter(vidpath, fourcc, fps, size)
     
@@ -350,7 +354,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     if Back_Video_Path != "Disabled(不启用)":
         var.set("背景视频预处理")
         showframe.update()
-        Background_Video_Path="tmp/"+str(rand_id)+" export_2.avi"
+        Background_Video_Path="tmp/"+str(rand_id)+" Background.avi"
         resolution=str(width)+"x"+str(height)
         print(Back_Video_Path, Background_Video_Path, str(fps), resolution)
         process_video(Back_Video_Path, Background_Video_Path, str(fps), resolution,var,showframe)
@@ -389,8 +393,17 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
         while i in combo_frame:  
             combo_this_frame += 1
             combo_frame.remove(i)
-        
-        score_this_frame = score(combo_this_frame, totalcombo,APS)
+        try:
+            global IncreasingScore
+            present_score=IncreasingScore
+        except:
+            present_score=0
+        score_the_frame = score(combo_this_frame, totalcombo,APS)
+        IncreasingScore=int(present_score+(score_the_frame-present_score)*0.5)
+        score_this_frame=score2(IncreasingScore,APS)
+        if DynamicScore==False:
+            score_this_frame=str(score_the_frame)
+        print(score_this_frame)
         beat = f2b(i, fps, BarPerMinute)
         #frame = background.copy()
         #把分数渲染移到了最后 防止判定线遮挡UI
@@ -466,6 +479,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                 if f2>=floor_range[0] and f<=floor_range[1] and chart["judgeLineList"][k]["notesAbove"][j]['time']+chart["judgeLineList"][k]["notesAbove"][j]['holdTime']>=beat:
                     distance=(chart["judgeLineList"][k]["notesAbove"][j]['floorPosition']-floor_range[0])*height/1080
                     distance2=(chart["judgeLineList"][k]["notesAbove"][j]['floorPosition2']-floor_range[0])*height/1080
+                   
                     chart["judgeLineList"][k]["notesAbove"][j].update({'linex':linex,
                                                                     'liney':liney,
                                                                     'rotate':rotate,
@@ -476,6 +490,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                     elif chart["judgeLineList"][k]["notesAbove"][j]["type"]!=5:
                         note_this_frame.append(chart["judgeLineList"][k]["notesAbove"][j])
                 elif NS==0 and f2>=floor_range[0]:
+                 
                     distance=(chart["judgeLineList"][k]["notesAbove"][j]['floorPosition']-floor_range[0])*height/1080
                     distance2=(chart["judgeLineList"][k]["notesAbove"][j]['floorPosition2']-floor_range[0])*height/1080
                     chart["judgeLineList"][k]["notesAbove"][j].update({'linex':linex,
@@ -488,6 +503,7 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
                 #    chart["judgeLineList"][k]["notesAbove"].pop(j)
                 #    chart["judgeLineList"][k]["notesAbove"].insert(j,"delete")
                 elif hittime-beat<4 and hittime-beat>=0:
+                 
                     chart["judgeLineList"][k]["notesAbove"][j].update({'linex':linex,
                                                                     'liney':liney,
                                                                     'rotate':rotate})
@@ -695,7 +711,6 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
         pass
     
     Ani=False
-    
     if Superior_Data[0] != "禁用":
         AST=Superior_Data[0]
         Animation_data=[songName,level,width,height,fps,rand_id,APS,totalcombo,Picture,AST]
@@ -714,21 +729,33 @@ def start_rendering(songName,level,width,height,fps,chartPath,Picture,audioPath,
     var.set("正在合成音视频")
     showframe.update()
     if Ani==False:
-        vidpath = os.path.abspath("tmp/"+str(rand_id)+" export_1.avi")
-        audpath = os.path.abspath("tmp/"+str(rand_id)+" tmp_2.wav")
+        vidpath = os.path.abspath("tmp/"+str(rand_id)+" Video.avi")
+        audpath = os.path.abspath("tmp/"+str(rand_id)+" ComposedAudio.wav")
         export_p = os.path.abspath("export")
         video_add_audio(vidpath, audpath, export_p, f"{songName}.mp4")
     else:
         try:
-            vidpath = os.path.abspath("tmp/"+str(rand_id)+" export_1.avi")
-            audpath = os.path.abspath("tmp/"+str(rand_id)+" tmp_2.wav")
+            vidpath = os.path.abspath("tmp/"+str(rand_id)+" Video.avi")
+            audpath = os.path.abspath("tmp/"+str(rand_id)+" ComposedAudio.wav")
             export_p = os.path.abspath("tmp")
-            video_add_audio(vidpath, audpath, export_p, str(rand_id)+" export_2.mp4")
-            merge_videos("tmp/"+str(rand_id)+" export_2.mp4", "tmp/"+str(rand_id)+" Animation_3.mp4", "export", songName)
+            video_add_audio(vidpath, audpath, export_p, str(rand_id)+" ComposedVideo.mp4")
+            merge_videos("tmp/"+str(rand_id)+" ComposedVideo.mp4", "tmp/"+str(rand_id)+" Animation_3.mp4", "export", songName)
         except:
             pass
 
-    messagebox.showinfo("完成","视频已保存至 export 文件夹")
+    
+    
+    def open_folder():
+        current_dir = os.getcwd()
+        export_dir = os.path.join(current_dir, 'export')
+        export_url = 'file:///' + export_dir.replace('\\', '/')
+        os.startfile(export_url)
+    try:
+        
+        toaster = ToastNotifier()
+        toaster.show_toast("生成完毕", "视频已保存至 export 文件夹", icon_path="Source/R.ico", duration=1, callback_on_click=open_folder)
+    except:
+        messagebox.showinfo("完成","视频已保存至 export 文件夹")
     showframe.destroy()
 
 root=tkinter.Tk()

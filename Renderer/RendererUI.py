@@ -38,6 +38,11 @@ def renderer(item,Path):
                 else:
                     LineColor=False
                     
+                if enDynamicScore.get()=="开启":
+                    DynamicScore=True
+                else:
+                    DynamicScore=False
+                    
                 notesize=float(enNoteSize.get().split()[0])
                 sound_Level=float(enSound.get().split()[0])
                 AST=enStartAnimation.get()
@@ -48,13 +53,14 @@ def renderer(item,Path):
                     AET=10
                 LOM=enLevelOver.get().split()[0]
                 
+                Base_Data=[name,level,width,hight,fps,chart,picture,song,Highlight,blur,notesize,LineColor,sound_Level]
                 Superior_Data=[AST,AET,enPlayerName.get(),enComboText.get(),
-                               enUserIcon.get(),enVideoBackground.get(),enAPS.get(),LOM,enLevelOver.get()]
+                               enUserIcon.get(),enVideoBackground.get(),enAPS.get(),LOM,enLevelOver.get(),DynamicScore]
                 
                 
                 base.destroy()
                 #print([name,level,width,hight,fps,chart,picture,song,Highlight,blur,notesize,LineColor,sound_Level,Superior_Data])
-                start_rendering(name,level,width,hight,fps,chart,picture,song,Highlight,blur,notesize,LineColor,sound_Level,Superior_Data)
+                start_rendering(Base_Data,Superior_Data)
                 
                 
             except :#不可用则报错
@@ -109,6 +115,7 @@ def renderer(item,Path):
         Var4=tkinter.StringVar(base)
         Var5=tkinter.StringVar(base)
         Var6=tkinter.StringVar(base)
+        Var7=tkinter.StringVar(base)
         
         Name=tkinter.Label(setinfo, text='曲名:',font=('',10),width=10,height=1)
         Name.place(x=100,y=80,anchor="e")
@@ -238,11 +245,20 @@ def renderer(item,Path):
         LevelOver=tkinter.Label(superior, text='结算音乐:',font=('',10),width=10,height=1)
         LevelOver.place(x=350,y=80,anchor="e")
         
-        Var6.set("IN #默认")
+        Var6.set("IN")
         
-        enLevelOver=ttk.Combobox(superior,width=20,textvariable=Var6,state="readonly")
+        enLevelOver=ttk.Combobox(superior,width=5,textvariable=Var6,state="readonly")
         enLevelOver['values']=("EZ","HD","IN","AT")
         enLevelOver.place(x=350,y=80,anchor="w")
+        
+        DynamicScore=tkinter.Label(superior, text='动态分数:',font=('',10),width=10,height=1)
+        DynamicScore.place(x=490,y=80,anchor="e")
+        
+        Var7.set("关闭")
+        
+        enDynamicScore=ttk.Combobox(superior,width=5,textvariable=Var7,state="readonly")
+        enDynamicScore['values']=("开启","关闭")
+        enDynamicScore.place(x=490,y=80,anchor="w")
         
         PlayerName=tkinter.Label(superior, text='玩家名称:',font=('',10),width=10,height=1)
         PlayerName.place(x=350,y=180,anchor="e")
@@ -330,7 +346,7 @@ if __name__ == "__main__":
     root.geometry("400x300")
     title1=tkinter.Label(root, text='PE/json Chart Renderer 0.2.3',font=('',12),width=30,height=2)
     title1.place(relx=0.5,rely=0.1,anchor=tkinter.CENTER)
-    botton1=tkinter.Button(root,text='Chart rendering',font=('',10),width=20,height=2,command=lambda:renderer(""))
+    botton1=tkinter.Button(root,text='Chart rendering',font=('',10),width=20,height=2,command=lambda:renderer("",""))
     botton1.place(relx=0.5,rely=0.33,anchor=tkinter.CENTER)
     botton2=tkinter.Button(root,text='Convert pec to json',font=('',10),width=20,height=2,command=chartify)
     botton2.place(relx=0.5,rely=0.55,anchor=tkinter.CENTER)

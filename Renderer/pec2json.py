@@ -8,6 +8,7 @@ def pec2json(filePath):
     with open(filePath,"r") as t:
         data=t.readlines()
         offset=float(data[0])/1000
+        print(offset)
         bpmlist=[]
         pecline=[]
         for i in range(0,len(data)):
@@ -15,11 +16,14 @@ def pec2json(filePath):
                 bp=data[i].split()
                 bpmlist.append([float(bp[1]),float(bp[2])])
         bpmlist.append([2000.000,bpmlist[-1][1]])
+  
         for i in range(0,len(data)):
             if "n" in data[i]:
                 if "n2" in data[i]:
                     hold=data[i].split()
+            
                     starttime=beat2sec(float(hold[2]),bpmlist,offset)
+           
                     endtime=beat2sec(float(hold[3]),bpmlist,offset)
                     pecline.append(hold[0]+" "+hold[1]+" "+str(starttime)+" "+str(endtime)+" "+hold[4]+" "+hold[5]+" "+hold[6]+"\n")
                     pecline.append(data[i+1])
@@ -62,7 +66,9 @@ def pec2json(filePath):
         if "n" in pecline[i]:
             if "n2" in pecline[i]:
                 hold=pecline[i].split()
+            
                 starttime=sec2beat(float(hold[2]),newbpm)
+            
                 endtime=sec2beat(float(hold[3]),newbpm)
                 newpec.append(hold[0]+" "+hold[1]+" "+str(starttime)+" "+str(endtime)+" "+hold[4]+" "+hold[5]+" "+hold[6]+"\n")
                 newpec.append(pecline[i+1])
@@ -138,6 +144,7 @@ def pec2json(filePath):
                                 "speed":float(data[i+1].split()[1]),
                                 "above":float(data[i].split()[5]),
                                 "isFake":int(data[i].split()[6])})
+                   
                     if float(data[i].split()[6])==0:
                         Num_note+=1
                     Num_judgeline.append(int(data[i].split()[1]))
