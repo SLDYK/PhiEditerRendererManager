@@ -75,7 +75,7 @@ def video_add_audio(video_path: str, audio_path: str, output_dir: str, videoname
     result = os.path.join(output_dir, videoname)
     ff = ffmpy.FFmpeg(
         inputs={video_path: None, audio_path: None},
-        outputs={result: '-map 0:v -map 1:a -c:v copy -c:a {} -b:a 192k -y'.format(_codec)})
+        outputs={result: '-map 0:v -map 1:a -c:v copy -c:a {} -b:a 320k -y'.format(_codec)})
     ff.run()
     return result
 
