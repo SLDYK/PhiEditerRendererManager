@@ -169,6 +169,10 @@ def score2(s,APS):
     t=str(10**int(math.log(APS+0.5)/math.log(10)+1)+s)
     return t[1:]
 
+def score3(s,APS):
+    t=str(10**int(math.log(APS+0.5)/math.log(10)+1)+s)
+    return t[1:]
+
 def beat2msec(s, bpm, hitsoundoffset):
     return 60 * s / 32 / bpm * 1000 + hitsoundoffset
 

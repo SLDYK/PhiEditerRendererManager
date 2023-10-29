@@ -12,7 +12,7 @@ from win10toast_click import ToastNotifier
 
 from tkinter import messagebox
 from PIL import Image, ImageChops, ImageDraw, ImageFont, ImageTk, ImageEnhance
-from lib_for_video import Trim, f2b, b2f, cut, present_floor, end_floor
+from lib_for_video import Trim, f2b, b2f, cut, present_floor, end_floor, score3
 from lib_for_video import holdhead_fix, holdend_fix, speed_fix, score, score2
 from lib_for_video import paste_hold_pos, paste_pos, effect_pos, p4
 from lib_for_video import mkdir, linepos, process_video
@@ -260,6 +260,10 @@ def start_rendering(Base_Data,Superior_Data):#主程序
                 notelist.append(chart["judgeLineList"][i]["notesBelow"][j])
                 hittimelist.append(chart["judgeLineList"][i]["notesBelow"][j]["time"])
                 hitsoundlist.append((chart["judgeLineList"][i]["notesBelow"][j]["time"], chart["judgeLineList"][i]["notesBelow"][j]["type"]))
+            else:
+                notelist.append(chart["judgeLineList"][i]["notesBelow"][j])
+                hittimelist.append(chart["judgeLineList"][i]["notesBelow"][j]["time"])
+                
         for j in range(0,len(chart["judgeLineList"][i]["notesAbove"])):
             chart["judgeLineList"][i]["notesAbove"][j].update({'HL':False})
             chart["judgeLineList"][i]["notesAbove"][j].update({'Above':True})
@@ -277,6 +281,9 @@ def start_rendering(Base_Data,Superior_Data):#主程序
                 notelist.append(chart["judgeLineList"][i]["notesAbove"][j])
                 hittimelist.append(chart["judgeLineList"][i]["notesAbove"][j]["time"])
                 hitsoundlist.append((chart["judgeLineList"][i]["notesAbove"][j]["time"], chart["judgeLineList"][i]["notesAbove"][j]["type"]))
+            else:
+                notelist.append(chart["judgeLineList"][i]["notesAbove"][j])###
+                hittimelist.append(chart["judgeLineList"][i]["notesAbove"][j]["time"])
                 
     for i in range(len(hittimelist)):
         if hittimelist.count(hittimelist[i])!=1:
@@ -402,8 +409,9 @@ def start_rendering(Base_Data,Superior_Data):#主程序
         IncreasingScore=int(present_score+(score_the_frame-present_score)*0.5)
         score_this_frame=score2(IncreasingScore,APS)
         if DynamicScore==False:
-            score_this_frame=str(score_the_frame)
-        print(score_this_frame)
+            score_this_frame=score_the_frame
+            score_this_frame=score3(score_this_frame,APS)
+        
         beat = f2b(i, fps, BarPerMinute)
         #frame = background.copy()
         #把分数渲染移到了最后 防止判定线遮挡UI
@@ -461,7 +469,7 @@ def start_rendering(Base_Data,Superior_Data):#主程序
             
             for j in range(len(chart["judgeLineList"][k]["notesAbove"])):
                 try:
-                    if i-chart["judgeLineList"][k]["notesAbove"][j]['hitFrame']<30*fps/60 and i-chart["judgeLineList"][k]["notesAbove"][j]['hitFrame']>=0:
+                    if i-chart["judgeLineList"][k]["notesAbove"][j]['hitFrame']<30*fps/60 and i-chart["judgeLineList"][k]["notesAbove"][j]['hitFrame']>=0 and chart["judgeLineList"][k]["notesAbove"][j]["isFake"]!=1 :
                         effect_this_frame.append(chart["judgeLineList"][k]["notesAbove"][j])
                 except:
                     if beat > chart["judgeLineList"][k]["notesAbove"][j]['time']+chart["judgeLineList"][k]["notesAbove"][j]['holdTime'] :
@@ -512,7 +520,7 @@ def start_rendering(Base_Data,Superior_Data):#主程序
             
             for j in range(len(chart["judgeLineList"][k]["notesBelow"])):
                 try:
-                   if i-chart["judgeLineList"][k]["notesBelow"][j]['hitFrame']<30*fps/60 and i-chart["judgeLineList"][k]["notesBelow"][j]['hitFrame']>=0:
+                   if i-chart["judgeLineList"][k]["notesBelow"][j]['hitFrame']<30*fps/60 and i-chart["judgeLineList"][k]["notesBelow"][j]['hitFrame']>=0 and chart["judgeLineList"][k]["notesBelow"][j]["isFake"]!=1 :
                        effect_this_frame.append(chart["judgeLineList"][k]["notesBelow"][j])
                 except:
                     if beat > chart["judgeLineList"][k]["notesBelow"][j]['time']+chart["judgeLineList"][k]["notesBelow"][j]['holdTime'] :

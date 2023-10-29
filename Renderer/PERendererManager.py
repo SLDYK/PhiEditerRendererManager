@@ -653,7 +653,7 @@ def on_closing():
     
 if __name__ == "__main__":    
     root=tkinter.Tk()
-    root.title("PhiEditerRendererManager 0.3.9.2")
+    root.title("PhiEditerRendererManager 0.3.9.3")
     root.geometry("600x310")
     root.iconbitmap("Source/R.ico")
     
